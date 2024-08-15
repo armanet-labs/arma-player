@@ -13,11 +13,12 @@ export default function (playerInstance) {
     const FLUID_PLAYER_WRAPPER_CLASS = 'fluid_mini_player_mode';
     const CLOSE_BUTTON_WRAPPER_CLASS = 'mini-player-close-button-wrapper';
     const CLOSE_BUTTON_CLASS = 'mini-player-close-button';
-    const PLACEHOLDER_CLASS = 'fluidplayer-miniplayer-player-placeholder'
+    const PLACEHOLDER_CLASS = 'fluidplayer-miniplayer-player-placeholder';
     const DISABLE_MINI_PLAYER_MOBILE_CLASS = 'disable-mini-player-mobile';
 
     const LINEAR_CLICKTHROUGH_SELECTOR = '.vast_clickthrough_layer';
-    const NON_LINEAR_SELECTOR = '.fluid_nonLinear_ad img, .fluid_vpaid_nonlinear_slot_iframe';
+    const NON_LINEAR_SELECTOR =
+        '.fluid_nonLinear_ad img, .fluid_vpaid_nonlinear_slot_iframe';
     const VPAID_FRAME_SELECTOR = '.fluid_vpaidNonLinear_frame';
 
     const MINI_PLAYER_TOGGLE_EVENT = 'miniPlayerToggle';
@@ -25,7 +26,7 @@ export default function (playerInstance) {
     // Module variables
     let originalWidth = null;
     let originalHeight = null;
-    let originalNonLinearWidth = null
+    let originalNonLinearWidth = null;
     let originalNonLinearHeight = null;
     let isSetup = false;
     /** @type null | Element */
@@ -41,17 +42,27 @@ export default function (playerInstance) {
      * @param {boolean} manualToggle
      */
     function toggleMiniPlayer(forceToggle, manualToggle = false) {
-        playerInstance.debugMessage(`[MiniPlayer] Toggling MiniPlayer, forceToggle: ${forceToggle}`);
+        playerInstance.debugMessage(
+            `[MiniPlayer] Toggling MiniPlayer, forceToggle: ${forceToggle}`,
+        );
 
-        const miniPlayerOptions = playerInstance.displayOptions.layoutControls.miniPlayer;
+        const miniPlayerOptions =
+            playerInstance.displayOptions.layoutControls.miniPlayer;
 
         if (!miniPlayerOptions.enabled) {
-            playerInstance.debugMessage(`[MiniPlayer] Prevent toggle MiniPlayer, it's currently disabled`);
+            playerInstance.debugMessage(
+                `[MiniPlayer] Prevent toggle MiniPlayer, it's currently disabled`,
+            );
             return;
         }
 
-        if ((forceToggle === 'on' && playerInstance.miniPlayerToggledOn) || (forceToggle === 'off' && !playerInstance.miniPlayerToggledOn)) {
-            playerInstance.debugMessage(`[MiniPlayer] Can't force toggle Mini Player to it's same state`);
+        if (
+            (forceToggle === 'on' && playerInstance.miniPlayerToggledOn) ||
+            (forceToggle === 'off' && !playerInstance.miniPlayerToggledOn)
+        ) {
+            playerInstance.debugMessage(
+                `[MiniPlayer] Can't force toggle Mini Player to it's same state`,
+            );
             return;
         }
 
@@ -73,8 +84,16 @@ export default function (playerInstance) {
 
         if (forceToggle === 'off' || playerInstance.miniPlayerToggledOn) {
             toggleMiniPlayerOff();
-        } else if (forceToggle === 'on' || !playerInstance.miniPlayerToggledOn) {
-            toggleMiniPlayerOn(miniPlayerOptions.width, miniPlayerOptions.height, miniPlayerOptions.widthMobile, miniPlayerOptions.position);
+        } else if (
+            forceToggle === 'on' ||
+            !playerInstance.miniPlayerToggledOn
+        ) {
+            toggleMiniPlayerOn(
+                miniPlayerOptions.width,
+                miniPlayerOptions.height,
+                miniPlayerOptions.widthMobile,
+                miniPlayerOptions.position,
+            );
         }
     }
 
@@ -82,7 +101,11 @@ export default function (playerInstance) {
      * Setups custom Mini Player DOM
      */
     function setupMiniPlayer() {
-        const hasCloseButton = Boolean(playerInstance.domRef.player.parentNode.querySelector(`.${CLOSE_BUTTON_CLASS}`));
+        const hasCloseButton = Boolean(
+            playerInstance.domRef.player.parentNode.querySelector(
+                `.${CLOSE_BUTTON_CLASS}`,
+            ),
+        );
 
         if (!hasCloseButton) {
             const closeButtonWrapper = document.createElement('div');
@@ -142,14 +165,25 @@ export default function (playerInstance) {
         const videoWrapper = playerInstance.domRef.wrapper;
         const targetWidth = width > MINIMUM_WIDTH ? width : MINIMUM_WIDTH;
         const targetHeight = height > MINIMUM_HEIGHT ? height : MINIMUM_HEIGHT;
-        const targetMobileWidth = mobileWidth > MINIMUM_WIDTH_MOBILE ? mobileWidth : MINIMUM_WIDTH_MOBILE;
+        const targetMobileWidth =
+            mobileWidth > MINIMUM_WIDTH_MOBILE
+                ? mobileWidth
+                : MINIMUM_WIDTH_MOBILE;
 
-        originalWidth = extractSizeFromElement(videoWrapper, 'width', 'clientWidth');
-        originalHeight = extractSizeFromElement(videoWrapper, 'height', 'clientHeight');
+        originalWidth = extractSizeFromElement(
+            videoWrapper,
+            'width',
+            'clientWidth',
+        );
+        originalHeight = extractSizeFromElement(
+            videoWrapper,
+            'height',
+            'clientHeight',
+        );
 
         videoWrapper.classList.add(
             FLUID_PLAYER_WRAPPER_CLASS,
-            `${FLUID_PLAYER_WRAPPER_CLASS}--${position.trim().replace(/\s/, '-')}`
+            `${FLUID_PLAYER_WRAPPER_CLASS}--${position.trim().replace(/\s/, '-')}`,
         );
 
         if (!isMobile) {
@@ -173,7 +207,9 @@ export default function (playerInstance) {
      */
     function emitToggleEvent() {
         playerInstance.domRef.player.dispatchEvent(
-            new CustomEvent(MINI_PLAYER_TOGGLE_EVENT, { detail: { isToggledOn: playerInstance.miniPlayerToggledOn } })
+            new CustomEvent(MINI_PLAYER_TOGGLE_EVENT, {
+                detail: { isToggledOn: playerInstance.miniPlayerToggledOn },
+            }),
         );
     }
 
@@ -186,10 +222,16 @@ export default function (playerInstance) {
      * @returns {number}
      */
     function extractSizeFromElement(element, styleProperty, htmlProperty) {
-        if (styleProperty && element.style[styleProperty] && element.style[styleProperty].match('px')) {
+        if (
+            styleProperty &&
+            element.style[styleProperty] &&
+            element.style[styleProperty].match('px')
+        ) {
             return parseInt(element.style[styleProperty]);
         } else {
-            return String(element[htmlProperty]).match('px') ? parseInt(element[htmlProperty]) : element[htmlProperty];
+            return String(element[htmlProperty]).match('px')
+                ? parseInt(element[htmlProperty])
+                : element[htmlProperty];
         }
     }
 
@@ -202,18 +244,24 @@ export default function (playerInstance) {
      */
     function adaptNonLinearSize(width, height, mobileWidth) {
         /** @type HTMLImageElement|HTMLIFrameElement */
-        const nonLinear = playerInstance.domRef.wrapper.querySelector(NON_LINEAR_SELECTOR);
+        const nonLinear =
+            playerInstance.domRef.wrapper.querySelector(NON_LINEAR_SELECTOR);
         /** @type HTMLElement */
-        const vpaidFrame = playerInstance.domRef.wrapper.querySelector(VPAID_FRAME_SELECTOR);
+        const vpaidFrame =
+            playerInstance.domRef.wrapper.querySelector(VPAID_FRAME_SELECTOR);
 
         if (!nonLinear) return;
 
         if (isMobile) {
-            width = window.innerWidth * mobileWidth / 100; // Transforms vw to px
+            width = (window.innerWidth * mobileWidth) / 100; // Transforms vw to px
         }
 
         const nonLinearWidth = extractSizeFromElement(nonLinear, null, 'width');
-        const nonLinearHeight = extractSizeFromElement(nonLinear, null, 'height');
+        const nonLinearHeight = extractSizeFromElement(
+            nonLinear,
+            null,
+            'height',
+        );
 
         if (originalNonLinearWidth && originalNonLinearHeight) {
             nonLinear.width = originalNonLinearWidth;
@@ -245,7 +293,9 @@ export default function (playerInstance) {
      * Adapts Linear size (if present) to fit MiniPlayer view
      */
     function adaptLinearSize() {
-        const clickTroughLayer = playerInstance.domRef.wrapper.querySelector(LINEAR_CLICKTHROUGH_SELECTOR);
+        const clickTroughLayer = playerInstance.domRef.wrapper.querySelector(
+            LINEAR_CLICKTHROUGH_SELECTOR,
+        );
 
         if (clickTroughLayer) {
             clickTroughLayer.style.width = `${playerInstance.domRef.player.offsetWidth}px`;
@@ -264,32 +314,39 @@ export default function (playerInstance) {
         let hasTriggeredAnimation;
         disableMiniPlayerMobile.classList.add(DISABLE_MINI_PLAYER_MOBILE_CLASS);
 
-        disableMiniPlayerMobile.ontouchstart = event => {
+        disableMiniPlayerMobile.ontouchstart = (event) => {
             hasTriggeredAnimation = false;
             startTimestamp = event.timeStamp;
             startScreenX = event.changedTouches[0].screenX;
             event.preventDefault();
-        }
+        };
 
-        disableMiniPlayerMobile.ontouchmove = event => {
+        disableMiniPlayerMobile.ontouchmove = (event) => {
             animationAmount = Math.min(
                 Math.max(
                     startScreenX - event.changedTouches[0].screenX,
-                    DISABLE_MINI_PLAYER_MOBILE_ANIMATION_CLAMP * -1),
-                DISABLE_MINI_PLAYER_MOBILE_ANIMATION_CLAMP
+                    DISABLE_MINI_PLAYER_MOBILE_ANIMATION_CLAMP * -1,
+                ),
+                DISABLE_MINI_PLAYER_MOBILE_ANIMATION_CLAMP,
             );
 
-            if (Math.abs(animationAmount) > DISABLE_MINI_PLAYER_MOBILE_ANIMATION_DEADZONE) {
+            if (
+                Math.abs(animationAmount) >
+                DISABLE_MINI_PLAYER_MOBILE_ANIMATION_DEADZONE
+            ) {
                 // Moves the element the same amount as the touch event moved
                 playerInstance.domRef.wrapper.style.transform = `translateX(${animationAmount * -1}px)`;
                 hasTriggeredAnimation = true;
             } else {
-                playerInstance.domRef.wrapper.style.transform = `translateX(0px)`
+                playerInstance.domRef.wrapper.style.transform = `translateX(0px)`;
             }
-        }
+        };
 
-        disableMiniPlayerMobile.ontouchend = event => {
-            if (Math.abs(animationAmount) > DISABLE_MINI_PLAYER_MOBILE_ANIMATION_DEADZONE) {
+        disableMiniPlayerMobile.ontouchend = (event) => {
+            if (
+                Math.abs(animationAmount) >
+                DISABLE_MINI_PLAYER_MOBILE_ANIMATION_DEADZONE
+            ) {
                 // Scroll X behaviour - Disable mini player and pauses video
                 toggleMiniPlayer('off', true);
 
@@ -305,17 +362,20 @@ export default function (playerInstance) {
                         behavior: 'smooth',
                         block: 'center',
                     });
-                })
+                });
             }
 
             animationAmount = 0;
             playerInstance.domRef.wrapper.style.transform = ``;
-        }
+        };
 
         // Fallback for when there is no touch event
-        disableMiniPlayerMobile.onmouseup = () => toggleMiniPlayer('off', true)
+        disableMiniPlayerMobile.onmouseup = () => toggleMiniPlayer('off', true);
 
-        playerInstance.domRef.wrapper.insertBefore(disableMiniPlayerMobile, playerInstance.domRef.player.nextSibling);
+        playerInstance.domRef.wrapper.insertBefore(
+            disableMiniPlayerMobile,
+            playerInstance.domRef.player.nextSibling,
+        );
     }
 
     /**
@@ -329,17 +389,24 @@ export default function (playerInstance) {
         placeholderElement.classList.add(PLACEHOLDER_CLASS);
         placeholderElement.style.height = `${placeholderHeight}px`;
         placeholderElement.style.width = `${placeholderWidth}px`;
-        placeholderElement.innerText = playerInstance.displayOptions.layoutControls.miniPlayer.placeholderText || '';
+        placeholderElement.innerText =
+            playerInstance.displayOptions.layoutControls.miniPlayer
+                .placeholderText || '';
         placeholderElement.onclick = () => toggleMiniPlayer('off', true);
 
-        playerInstance.domRef.wrapper.parentElement.insertBefore(placeholderElement, playerInstance.domRef.wrapper);
+        playerInstance.domRef.wrapper.parentElement.insertBefore(
+            placeholderElement,
+            playerInstance.domRef.wrapper,
+        );
     }
 
     /**
      * Removes the placeholder that was in place where video player was
      */
     function removePlayerPlaceholder() {
-        playerInstance.domRef.wrapper.parentElement.removeChild(placeholderElement);
+        playerInstance.domRef.wrapper.parentElement.removeChild(
+            placeholderElement,
+        );
         placeholderElement = null;
     }
 
@@ -347,34 +414,52 @@ export default function (playerInstance) {
      * Toggles auto toggle for mini player
      */
     function toggleScreenDetection() {
-        const autoToggle = playerInstance.displayOptions.layoutControls.miniPlayer.autoToggle;
+        const autoToggle =
+            playerInstance.displayOptions.layoutControls.miniPlayer.autoToggle;
 
         if (toggleByVisibilityControl || !autoToggle) {
-            document.removeEventListener('scroll', toggleMiniPlayerByVisibility);
+            document.removeEventListener(
+                'scroll',
+                toggleMiniPlayerByVisibility,
+            );
             return;
         }
 
         toggleByVisibilityControl = true;
-        document.addEventListener('scroll', toggleMiniPlayerByVisibility, { passive: true });
+        document.addEventListener('scroll', toggleMiniPlayerByVisibility, {
+            passive: true,
+        });
     }
 
     /**
      * Checks for player visibility and toggles mini player based on it
      */
-    const toggleMiniPlayerByVisibility = playerInstance.throttle(function toggleMiniPlayerByVisibility() {
-        if (playerInstance.domRef.player.paused) {
-            return;
-        }
+    const toggleMiniPlayerByVisibility = playerInstance.throttle(
+        function toggleMiniPlayerByVisibility() {
+            if (playerInstance.domRef.player.paused) {
+                return;
+            }
 
-        const isPlayerVisible = playerInstance.isElementVisible(playerInstance.domRef.player);
-        const isPlaceholderVisible = playerInstance.isElementVisible(playerInstance.domRef.wrapper.querySelector(`.${PLACEHOLDER_CLASS}`));
+            const isPlayerVisible = playerInstance.isElementVisible(
+                playerInstance.domRef.player,
+            );
+            const isPlaceholderVisible = playerInstance.isElementVisible(
+                playerInstance.domRef.wrapper.querySelector(
+                    `.${PLACEHOLDER_CLASS}`,
+                ),
+            );
 
-        if (!isPlayerVisible && !playerInstance.miniPlayerToggledOn) {
-            toggleMiniPlayer('on');
-        } else if (isPlaceholderVisible && playerInstance.miniPlayerToggledOn) {
-            toggleMiniPlayer('off');
-        }
-    }, TOGGLE_BY_VISIBILITY_DETECTION_RATE);
+            if (!isPlayerVisible && !playerInstance.miniPlayerToggledOn) {
+                toggleMiniPlayer('on');
+            } else if (
+                isPlaceholderVisible &&
+                playerInstance.miniPlayerToggledOn
+            ) {
+                toggleMiniPlayer('off');
+            }
+        },
+        TOGGLE_BY_VISIBILITY_DETECTION_RATE,
+    );
 
     // Exposes public module functions
     playerInstance.toggleMiniPlayer = toggleMiniPlayer;

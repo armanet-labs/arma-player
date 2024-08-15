@@ -1,10 +1,9 @@
-
 // Prevent DASH.js from automatically attaching to video sources by default.
 // Whoever thought this is a good idea?!
 if (typeof window !== 'undefined' && !window.dashjs) {
     window.dashjs = {
         skipAutoCreate: true,
-        isDefaultSubject: true
+        isDefaultSubject: true,
     };
 }
 
@@ -13,12 +12,17 @@ export default function (playerInstance, options) {
         playerInstance.detachStreamers();
         switch (playerInstance.displayOptions.layoutControls.mediaType) {
             case 'application/dash+xml': // MPEG-DASH
-                if (!playerInstance.dashScriptLoaded && (!window.dashjs || window.dashjs.isDefaultSubject)) {
+                if (
+                    !playerInstance.dashScriptLoaded &&
+                    (!window.dashjs || window.dashjs.isDefaultSubject)
+                ) {
                     playerInstance.dashScriptLoaded = true;
-                    import(/* webpackChunkName: "dashjs" */ 'dashjs').then((it) => {
-                        window.dashjs = it.default;
-                        playerInstance.initialiseDash();
-                    });
+                    import(/* webpackChunkName: "dashjs" */ 'dashjs').then(
+                        (it) => {
+                            window.dashjs = it.default;
+                            playerInstance.initialiseDash();
+                        },
+                    );
                 } else {
                     playerInstance.initialiseDash();
                 }
@@ -29,17 +33,24 @@ export default function (playerInstance, options) {
                 const { hls } = displayOptions;
 
                 // Doesn't load hls.js if player can play it natively
-                if (player.canPlayType('application/x-mpegurl') && !hls.overrideNative) {
-                    playerInstance.debugMessage('Native HLS support found, skipping hls.js');
+                if (
+                    player.canPlayType('application/x-mpegurl') &&
+                    !hls.overrideNative
+                ) {
+                    playerInstance.debugMessage(
+                        'Native HLS support found, skipping hls.js',
+                    );
                     break;
                 }
 
                 if (!playerInstance.hlsScriptLoaded && !window.Hls) {
                     playerInstance.hlsScriptLoaded = true;
-                    import(/* webpackChunkName: "hlsjs" */ 'hls.js').then((it) => {
-                        window.Hls = it.default;
-                        playerInstance.initialiseHls();
-                    });
+                    import(/* webpackChunkName: "hlsjs" */ 'hls.js').then(
+                        (it) => {
+                            window.Hls = it.default;
+                            playerInstance.initialiseHls();
+                        },
+                    );
                 } else {
                     playerInstance.initialiseHls();
                 }
@@ -48,28 +59,39 @@ export default function (playerInstance, options) {
     };
 
     playerInstance.initialiseDash = () => {
-        if (typeof (window.MediaSource || window.WebKitMediaSource) === 'function') {
+        if (
+            typeof (window.MediaSource || window.WebKitMediaSource) ===
+            'function'
+        ) {
             // If false we want to override the autoPlay, as it comes from postRoll
             const playVideo = !playerInstance.autoplayAfterAd
                 ? playerInstance.autoplayAfterAd
                 : playerInstance.displayOptions.layoutControls.autoPlay;
 
             const defaultOptions = {
-                'debug': {
-                    'logLevel': typeof FP_DEBUG !== 'undefined' && FP_DEBUG === true
-                        ? dashjs.Debug.LOG_LEVEL_DEBUG
-                        : dashjs.Debug.LOG_LEVEL_FATAL
-                }
+                debug: {
+                    logLevel:
+                        typeof FP_DEBUG !== 'undefined' && FP_DEBUG === true
+                            ? dashjs.Debug.LOG_LEVEL_DEBUG
+                            : dashjs.Debug.LOG_LEVEL_FATAL,
+                },
             };
 
             const dashPlayer = dashjs.MediaPlayer().create();
-            const options = playerInstance.displayOptions.modules.configureDash(defaultOptions);
+            const options =
+                playerInstance.displayOptions.modules.configureDash(
+                    defaultOptions,
+                );
 
             dashPlayer.updateSettings(options);
 
             playerInstance.displayOptions.modules.onBeforeInitDash(dashPlayer);
 
-            dashPlayer.initialize(playerInstance.domRef.player, playerInstance.originalSrc, playVideo);
+            dashPlayer.initialize(
+                playerInstance.domRef.player,
+                playerInstance.originalSrc,
+                playVideo,
+            );
 
             dashPlayer.on('streamInitializing', () => {
                 playerInstance.toggleLoader(true);
@@ -88,7 +110,9 @@ export default function (playerInstance, options) {
             playerInstance.dashPlayer = dashPlayer;
         } else {
             playerInstance.nextSource();
-            console.log('[FP_WARNING] Media type not supported by this browser using DASH.js. (application/dash+xml)');
+            console.log(
+                '[FP_WARNING] Media type not supported by this browser using DASH.js. (application/dash+xml)',
+            );
         }
     };
 
@@ -105,7 +129,10 @@ export default function (playerInstance, options) {
                 enableCEA708Captions: false,
             };
 
-            const options = playerInstance.displayOptions.modules.configureHls(defaultOptions);
+            const options =
+                playerInstance.displayOptions.modules.configureHls(
+                    defaultOptions,
+                );
             const hls = new Hls(options);
             playerInstance.displayOptions.modules.onBeforeInitHls(hls);
 
@@ -116,12 +143,17 @@ export default function (playerInstance, options) {
 
             playerInstance.hlsPlayer = hls;
 
-            if (!playerInstance.firstPlayLaunched && playerInstance.displayOptions.layoutControls.autoPlay) {
+            if (
+                !playerInstance.firstPlayLaunched &&
+                playerInstance.displayOptions.layoutControls.autoPlay
+            ) {
                 playerInstance.domRef.player.play();
             }
         } else {
             playerInstance.nextSource();
-            console.log('[FP_WARNING] Media type not supported by this browser using HLS.js. (application/x-mpegURL)');
+            console.log(
+                '[FP_WARNING] Media type not supported by this browser using HLS.js. (application/x-mpegURL)',
+            );
         }
     };
 

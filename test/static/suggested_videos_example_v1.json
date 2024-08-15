@@ -34,7 +34,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 1,
@@ -67,7 +67,7 @@
         ],
         "thumbnailUrl": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
         "title": "Elephant Dream",
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 2,
@@ -94,7 +94,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 3,
@@ -126,7 +126,7 @@
                 "lang": "de"
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 4,
@@ -140,7 +140,7 @@
         ],
         "thumbnailUrl": "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerFun.jpg",
         "title": "For Bigger Fun",
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 5,
@@ -167,7 +167,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 6,
@@ -199,7 +199,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 7,
@@ -231,7 +231,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 8,
@@ -263,7 +263,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 9,
@@ -295,7 +295,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 10,
@@ -327,7 +327,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 11,
@@ -359,7 +359,7 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     },
     {
         "id": 12,
@@ -391,6 +391,6 @@
                 "default": true
             }
         ],
-        "configUrl" : "/static/suggested_videos_example_v2.json"
+        "configUrl": "/static/suggested_videos_example_v2.json"
     }
 ]

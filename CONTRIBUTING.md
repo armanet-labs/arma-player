@@ -38,17 +38,17 @@ spending time on feature/change that would not be merged for some reason.
 
 For smaller contributions just use this workflow:
 
-* Create an issue describing the changes.
-* Await confirmation from contributors.
-* Fork the project.
-* Create a branch for your feature or bug fix.
-* Add code changes.
-* All new features or changes to the player settings or interface have to be documented in the
-[docs repo](https://github.com/fluid-player/fluid-player-docs), so that they are displayed
-on [https://docs.fluidplayer.com](https://docs.fluidplayer.com).
-If you have made changes like this, please fork fluid-player-docs as well and create a branch with the same
-name as the feature branch, adding necessary changes to documentation.
-* Send a pull request (both for fluid-player and fluid-player-docs)
+-   Create an issue describing the changes.
+-   Await confirmation from contributors.
+-   Fork the project.
+-   Create a branch for your feature or bug fix.
+-   Add code changes.
+-   All new features or changes to the player settings or interface have to be documented in the
+    [docs repo](https://github.com/fluid-player/fluid-player-docs), so that they are displayed
+    on [https://docs.fluidplayer.com](https://docs.fluidplayer.com).
+    If you have made changes like this, please fork fluid-player-docs as well and create a branch with the same
+    name as the feature branch, adding necessary changes to documentation.
+-   Send a pull request (both for fluid-player and fluid-player-docs)
 
 After one of the contributors has checked and approved the changes, they will be merged into master branch
 and will be included in the next release tag.

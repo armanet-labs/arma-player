@@ -1,29 +1,54 @@
 declare module 'fluid-player' {
     function fluidPlayer(
         target: HTMLVideoElement | String | string,
-        options?: Partial<FluidPlayerOptions>
+        options?: Partial<FluidPlayerOptions>,
     ): FluidPlayerInstance;
 
     export default fluidPlayer;
 }
 
 declare type AdditionalEventInfo = { mediaSourceType: 'ad' | 'source' };
-declare type OnPlay = (event: 'play', callback: (additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnPlaying =
-    (event: 'playing', callback: (event: Event, additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnPause = (event: 'pause', callback: (additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnEnded = (event: 'ended', callback: (additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnSeeked = (event: 'seeked', callback: (additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnTheaterModeOn =
-    (event: 'theatreModeOn', callback: (event: Event, additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnTheaterModeOff =
-    (event: 'theatreModeOff', callback: (event: Event, additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnTimeUpdate =
-    (event: 'timeupdate', callback: (time: number, additionalInfo: AdditionalEventInfo) => void) => void;
-declare type OnMiniPlayerToggle =
-    (event: 'miniPlayerToggle', callback: (event: CustomEvent<{
-        isToggledOn: boolean
-    }>, additionalInfo: AdditionalEventInfo) => void) => void;
+declare type OnPlay = (
+    event: 'play',
+    callback: (additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnPlaying = (
+    event: 'playing',
+    callback: (event: Event, additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnPause = (
+    event: 'pause',
+    callback: (additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnEnded = (
+    event: 'ended',
+    callback: (additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnSeeked = (
+    event: 'seeked',
+    callback: (additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnTheaterModeOn = (
+    event: 'theatreModeOn',
+    callback: (event: Event, additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnTheaterModeOff = (
+    event: 'theatreModeOff',
+    callback: (event: Event, additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnTimeUpdate = (
+    event: 'timeupdate',
+    callback: (time: number, additionalInfo: AdditionalEventInfo) => void,
+) => void;
+declare type OnMiniPlayerToggle = (
+    event: 'miniPlayerToggle',
+    callback: (
+        event: CustomEvent<{
+            isToggledOn: boolean;
+        }>,
+        additionalInfo: AdditionalEventInfo,
+    ) => void,
+) => void;
 
 declare interface FluidPlayerInstance {
     play: () => void;
@@ -34,11 +59,22 @@ declare interface FluidPlayerInstance {
     toggleControlBar: (shouldToggle: boolean) => void;
     toggleFullScreen: (shouldToggle: boolean) => void;
     toggleMiniPlayer: (shouldToggle: boolean) => void;
-    setHtmlOnPauseBlock: (pauseBlock: { html: string; width: number; height: number; }) => void;
+    setHtmlOnPauseBlock: (pauseBlock: {
+        html: string;
+        width: number;
+        height: number;
+    }) => void;
     destroy: () => void;
     dashInstance: () => any | null;
     hlsInstance: () => any | null;
-    on: OnPlay & OnPlaying & OnPause & OnEnded & OnSeeked & OnTheaterModeOn & OnTheaterModeOff & OnTimeUpdate &
+    on: OnPlay &
+        OnPlaying &
+        OnPause &
+        OnEnded &
+        OnSeeked &
+        OnTheaterModeOn &
+        OnTheaterModeOff &
+        OnTimeUpdate &
         OnMiniPlayerToggle;
 }
 
@@ -140,17 +176,26 @@ declare interface StaticPreviewOptions {
         y: number;
         w: number;
         h: number;
-    }>
+    }>;
 }
 
 declare interface VastOptions {
-    adList: Array<PreRollAdOptions | MidRollAdOptions | PostRollAdOptions | OnPauseRollAdOptions>;
+    adList: Array<
+        | PreRollAdOptions
+        | MidRollAdOptions
+        | PostRollAdOptions
+        | OnPauseRollAdOptions
+    >;
     skipButtonCaption: string;
     skipButtonClickCaption: string;
     adText: string;
     adTextPosition: 'top right' | 'top left' | 'bottom right' | 'bottom left';
     adCTAText: string | boolean;
-    adCTATextPosition: 'top right' | 'top left' | 'bottom right' | 'bottom left';
+    adCTATextPosition:
+        | 'top right'
+        | 'top left'
+        | 'bottom right'
+        | 'bottom left';
     adCTATextVast: boolean;
     vastTimeout: number;
     showPlayButton: boolean;

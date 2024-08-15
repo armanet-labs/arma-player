@@ -3,7 +3,7 @@ const fs = require('fs');
 const webpack = require('webpack');
 const semver = require('semver');
 const cheerio = require('cheerio');
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
@@ -25,32 +25,38 @@ const getDistOptions = (mode) => {
         case 'development':
             return {
                 path: path.resolve(__dirname, 'dist'),
-                publicPath: '/'
+                publicPath: '/',
             };
         case 'current':
             return {
-                path: path.resolve(__dirname, 'dist-cdn/v' + majorVersion + '/current/'),
-                publicPath: cdnRoot + '/v' + majorVersion + '/current/'
+                path: path.resolve(
+                    __dirname,
+                    'dist-cdn/v' + majorVersion + '/current/',
+                ),
+                publicPath: cdnRoot + '/v' + majorVersion + '/current/',
             };
         case 'versioned':
             return {
                 path: path.resolve(__dirname, 'dist-cdn/' + fullVersion + '/'),
-                publicPath: cdnRoot + '/' + fullVersion + '/'
+                publicPath: cdnRoot + '/' + fullVersion + '/',
             };
         default:
             throw 'Unknown distribution type provided in --dist!';
     }
-}
+};
 
 // Webpack configuration
 module.exports = (env, argv) => {
     const wpMode = typeof argv.mode !== 'undefined' ? argv.mode : 'development';
-    const wpDebug = wpMode === 'development' && typeof env.debug !== 'undefined' && !!env.debug;
+    const wpDebug =
+        wpMode === 'development' &&
+        typeof env.debug !== 'undefined' &&
+        !!env.debug;
     const wpDist = typeof env.dist !== 'undefined' ? env.dist : 'development';
     const wpDistOptions = getDistOptions(wpDist);
 
     if ('development' !== wpDist && (wpMode !== 'production' || wpDebug)) {
-        throw 'Building a production distribution in development mode or with debug enabled is not allowed!'
+        throw 'Building a production distribution in development mode or with debug enabled is not allowed!';
     }
 
     const plugins = [
@@ -60,65 +66,82 @@ module.exports = (env, argv) => {
             FP_HOMEPAGE: JSON.stringify(packageJSON.homepage),
             FP_ENV: JSON.stringify(wpMode),
             FP_DEBUG: JSON.stringify(wpDebug),
-            FP_WITH_CSS: false
-        })
+            FP_WITH_CSS: false,
+        }),
     ];
 
     // Development mode builds and development server specifics
     if ('development' === wpMode) {
         // Locate all E2E cases
         const caseFiles = [];
-        fs.readdirSync(path.resolve(__dirname, 'test/html/')).forEach(file => {
-            if (file === 'special-cases') {
-                return;
-            }
+        fs.readdirSync(path.resolve(__dirname, 'test/html/')).forEach(
+            (file) => {
+                if (file === 'special-cases') {
+                    return;
+                }
 
-            const absPath = path.resolve(__dirname, 'test/html/', file);
-            const caseHtml = cheerio.load(fs.readFileSync(absPath));
+                const absPath = path.resolve(__dirname, 'test/html/', file);
+                const caseHtml = cheerio.load(fs.readFileSync(absPath));
+                const publicName = file.replace('.tpl', '');
+
+                plugins.push(
+                    new HtmlWebpackPlugin({
+                        template: path.resolve(__dirname, 'test/html/', file),
+                        inject: false,
+                        filename: publicName,
+                        scriptLoading: 'blocking',
+                    }),
+                );
+
+                caseFiles.push({
+                    file: publicName,
+                    name: caseHtml('title').text(),
+                });
+            },
+        );
+
+        fs.readdirSync(
+            path.resolve(__dirname, 'test/html/special-cases'),
+        ).forEach((file) => {
             const publicName = file.replace('.tpl', '');
 
-            plugins.push(new HtmlWebpackPlugin({
-                template: path.resolve(__dirname, 'test/html/', file),
-                inject: false,
-                filename: publicName,
-                scriptLoading: "blocking",
-            }));
-
-            caseFiles.push({
-                file: publicName,
-                name: caseHtml('title').text()
-            });
-        });
-
-        fs.readdirSync(path.resolve(__dirname, 'test/html/special-cases')).forEach(file => {
-            const publicName = file.replace('.tpl', '');
-
-            plugins.push(new HtmlWebpackPlugin({
-                template: path.resolve(__dirname, 'test/html/special-cases', file),
-                inject: false,
-                filename: publicName,
-                scriptLoading: "blocking",
-            }));
+            plugins.push(
+                new HtmlWebpackPlugin({
+                    template: path.resolve(
+                        __dirname,
+                        'test/html/special-cases',
+                        file,
+                    ),
+                    inject: false,
+                    filename: publicName,
+                    scriptLoading: 'blocking',
+                }),
+            );
         });
 
         // Emit all cases as separate HTML pages
-        plugins.push(new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'test/index.html'),
-            filename: 'index.html',
-            inject: false,
-            templateParameters: {
-                cases: caseFiles
-            }
-        }));
+        plugins.push(
+            new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, 'test/index.html'),
+                filename: 'index.html',
+                inject: false,
+                templateParameters: {
+                    cases: caseFiles,
+                },
+            }),
+        );
 
         // Copy static assets for E2E
-        plugins.push(new CopyPlugin(
-            {
+        plugins.push(
+            new CopyPlugin({
                 patterns: [
-                    { from: path.resolve(__dirname, 'test/static/'), to: path.resolve(wpDistOptions.path, 'static') }
-                ]
-            }
-        ));
+                    {
+                        from: path.resolve(__dirname, 'test/static/'),
+                        to: path.resolve(wpDistOptions.path, 'static'),
+                    },
+                ],
+            }),
+        );
     }
 
     return {
@@ -130,24 +153,24 @@ module.exports = (env, argv) => {
         devtool: wpMode === 'development' ? 'source-map' : false,
         plugins,
         entry: {
-            fluidplayer: './src/browser.js'
+            fluidplayer: './src/browser.js',
         },
         optimization: {
             minimize: wpMode !== 'development',
             minimizer: [
-              new TerserPlugin({
-                extractComments: {
-                    condition: 'all',
-                    banner: false,
-                },
-              }),
+                new TerserPlugin({
+                    extractComments: {
+                        condition: 'all',
+                        banner: false,
+                    },
+                }),
             ],
         },
         output: {
             filename: '[name].min.js',
             chunkFilename: '[name].[chunkhash].min.js',
             path: wpDistOptions.path,
-            publicPath: wpDistOptions.publicPath
+            publicPath: wpDistOptions.publicPath,
         },
         module: {
             rules: [
@@ -157,9 +180,9 @@ module.exports = (env, argv) => {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env']
-                        }
-                    }
+                            presets: ['@babel/preset-env'],
+                        },
+                    },
                 },
                 {
                     test: /\.css$/i,
@@ -167,9 +190,9 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.svg/,
-                    type: 'asset'
+                    type: 'asset',
                 },
             ],
-        }
+        },
     };
-}
+};

@@ -1,14 +1,17 @@
-
 import promisePolyfill from 'es6-promise';
 
 // Object.assign polyfill
 if (typeof Object.assign != 'function') {
     // Must be writable: true, enumerable: false, configurable: true
     Object.defineProperty(Object, 'assign', {
-        value: function assign(target, varArgs) { // .length of function is 2
+        value: function assign(target, varArgs) {
+            // .length of function is 2
             'use strict';
-            if (target == null) { // TypeError if undefined or null
-                throw new TypeError('Cannot convert undefined or null to object');
+            if (target == null) {
+                // TypeError if undefined or null
+                throw new TypeError(
+                    'Cannot convert undefined or null to object',
+                );
             }
 
             const to = Object(target);
@@ -16,10 +19,16 @@ if (typeof Object.assign != 'function') {
             for (let index = 1; index < arguments.length; index++) {
                 const nextSource = arguments[index];
 
-                if (nextSource != null) { // Skip over if undefined or null
+                if (nextSource != null) {
+                    // Skip over if undefined or null
                     for (let nextKey in nextSource) {
                         // Avoid bugs when hasOwnProperty is shadowed
-                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                        if (
+                            Object.prototype.hasOwnProperty.call(
+                                nextSource,
+                                nextKey,
+                            )
+                        ) {
                             to[nextKey] = nextSource[nextKey];
                         }
                     }
@@ -28,7 +37,7 @@ if (typeof Object.assign != 'function') {
             return to;
         },
         writable: true,
-        configurable: true
+        configurable: true,
     });
 }
 
@@ -37,9 +46,18 @@ if (typeof Object.assign != 'function') {
     if (typeof globalThis.CustomEvent === 'function') return false;
 
     function CustomEvent(event, params) {
-        params = params || {bubbles: false, cancelable: false, detail: undefined};
+        params = params || {
+            bubbles: false,
+            cancelable: false,
+            detail: undefined,
+        };
         const evt = document.createEvent('CustomEvent');
-        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        evt.initCustomEvent(
+            event,
+            params.bubbles,
+            params.cancelable,
+            params.detail,
+        );
         return evt;
     }
 
@@ -68,7 +86,7 @@ if (
                         return;
                     }
                     this.parentNode.removeChild(this);
-                }
+                },
             });
         });
     })([Element.prototype, CharacterData.prototype, DocumentType.prototype]);

@@ -1,7 +1,9 @@
 export default function (playerInstance, options) {
     playerInstance.isTouchDevice = () => {
-        return !!('ontouchstart' in window        // works on most browsers
-            || navigator.maxTouchPoints);       // works on IE10/11 and Surface
+        return !!(
+            'ontouchstart' in window || // works on most browsers
+            navigator.maxTouchPoints
+        ); // works on IE10/11 and Surface
     };
 
     /**
@@ -14,7 +16,12 @@ export default function (playerInstance, options) {
      */
     playerInstance.getMobileOs = () => {
         const ua = navigator.userAgent || '';
-        const result = {device: false, userOs: false, userOsVer: false, userOsMajor: false};
+        const result = {
+            device: false,
+            userOs: false,
+            userOsVer: false,
+            userOsMajor: false,
+        };
 
         let versionIndex;
         // determine OS
@@ -39,7 +46,9 @@ export default function (playerInstance, options) {
             const indexOfEndOfVersion = userOsTemp.indexOf(' ');
 
             if (indexOfEndOfVersion !== -1) {
-                result.userOsVer = userOsTemp.substring(0, userOsTemp.indexOf(' ')).replace(/_/g, '.');
+                result.userOsVer = userOsTemp
+                    .substring(0, userOsTemp.indexOf(' '))
+                    .replace(/_/g, '.');
                 result.userOsMajor = parseInt(result.userOsVer);
             }
         } else if ('Android' === result.userOs && versionIndex > -1) {
@@ -61,7 +70,12 @@ export default function (playerInstance, options) {
      */
     playerInstance.getBrowserVersion = () => {
         const ua = navigator.userAgent || '';
-        const result = {browserName: false, fullVersion: false, majorVersion: false, userOsMajor: false};
+        const result = {
+            browserName: false,
+            fullVersion: false,
+            majorVersion: false,
+            userOsMajor: false,
+        };
 
         let idx, uaindex;
 
@@ -93,10 +107,16 @@ export default function (playerInstance, options) {
             }
 
             // Others "name/version" is at the end of userAgent
-            else if ((uaindex = ua.lastIndexOf(' ') + 1) < (idx = ua.lastIndexOf('/'))) {
+            else if (
+                (uaindex = ua.lastIndexOf(' ') + 1) <
+                (idx = ua.lastIndexOf('/'))
+            ) {
                 result.browserName = ua.substring(uaindex, idx);
                 result.fullVersion = ua.substring(idx + 1);
-                if (result.browserName.toLowerCase() === result.browserName.toUpperCase()) {
+                if (
+                    result.browserName.toLowerCase() ===
+                    result.browserName.toUpperCase()
+                ) {
                     result.browserName = navigator.appName;
                 }
             }
@@ -134,7 +154,7 @@ export default function (playerInstance, options) {
             if (v1[i] > v2[i]) return 1;
             if (v1[i] < v2[i]) return -1;
         }
-        return v1.length === v2.length ? 0 : (v1.length < v2.length ? -1 : 1);
+        return v1.length === v2.length ? 0 : v1.length < v2.length ? -1 : 1;
     };
 
     playerInstance.convertTimeStringToSeconds = (str) => {
@@ -143,7 +163,11 @@ export default function (playerInstance, options) {
         }
 
         const timeParts = str.split(':');
-        return ((parseInt(timeParts[0], 10)) * 3600) + ((parseInt(timeParts[1], 10)) * 60) + (parseInt(timeParts[2], 10));
+        return (
+            parseInt(timeParts[0], 10) * 3600 +
+            parseInt(timeParts[1], 10) * 60 +
+            parseInt(timeParts[2], 10)
+        );
     };
 
     // Format time to hh:mm:ss
@@ -172,16 +196,20 @@ export default function (playerInstance, options) {
      * @returns {boolean|null}
      */
     playerInstance.isElementVisible = (element) => {
-        if (!element) { return null; }
+        if (!element) {
+            return null;
+        }
 
         const rect = element.getBoundingClientRect();
         return (
             rect.top >= 0 &&
             rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+            rect.bottom <=
+                (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <=
+                (window.innerWidth || document.documentElement.clientWidth)
         );
-    }
+    };
 
     playerInstance.observe = () => {
         var observer = new IntersectionObserver(
@@ -202,7 +230,7 @@ export default function (playerInstance, options) {
         );
 
         observer.observe(playerInstance.domRef.wrapper);
-    }
+    };
 
     /**
      * Throttles callback by time
@@ -222,8 +250,8 @@ export default function (playerInstance, options) {
                     throttleControl = false;
                 }, time);
             }
-        }
-    }
+        };
+    };
 
     playerInstance.getImageTwoMostProminentColours = (imageUrl) => {
         return new Promise((resolve, reject) => {
@@ -237,7 +265,12 @@ export default function (playerInstance, options) {
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0, img.width, img.height);
-                const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
+                const imageData = ctx.getImageData(
+                    0,
+                    0,
+                    img.width,
+                    img.height,
+                ).data;
 
                 const colorCount = {};
                 for (let i = 0; i < imageData.length; i += 4) {
@@ -254,9 +287,12 @@ export default function (playerInstance, options) {
                 }
 
                 const rgbToHsl = (r, g, b) => {
-                    r /= 255, g /= 255, b /= 255;
-                    const max = Math.max(r, g, b), min = Math.min(r, g, b);
-                    let h, s, l = (max + min) / 2;
+                    (r /= 255), (g /= 255), (b /= 255);
+                    const max = Math.max(r, g, b),
+                        min = Math.min(r, g, b);
+                    let h,
+                        s,
+                        l = (max + min) / 2;
 
                     if (max === min) {
                         h = s = 0;
@@ -264,9 +300,15 @@ export default function (playerInstance, options) {
                         const d = max - min;
                         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
                         switch (max) {
-                            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                            case g: h = (b - r) / d + 2; break;
-                            case b: h = (r - g) / d + 4; break;
+                            case r:
+                                h = (g - b) / d + (g < b ? 6 : 0);
+                                break;
+                            case g:
+                                h = (b - r) / d + 2;
+                                break;
+                            case b:
+                                h = (r - g) / d + 4;
+                                break;
                         }
                         h /= 6;
                     }
@@ -274,16 +316,28 @@ export default function (playerInstance, options) {
                     return [h, s, l];
                 };
 
-                const sortedColors = Object.keys(colorCount).map(color => {
-                    const [r, g, b] = color.match(/\d+/g).map(Number);
-                    const [h, s, l] = rgbToHsl(r, g, b);
-                    return { color, h, s, l, score: s + (1 - Math.abs(2 * l - 1)) };
-                }).sort((a, b) => b.score - a.score);
+                const sortedColors = Object.keys(colorCount)
+                    .map((color) => {
+                        const [r, g, b] = color.match(/\d+/g).map(Number);
+                        const [h, s, l] = rgbToHsl(r, g, b);
+                        return {
+                            color,
+                            h,
+                            s,
+                            l,
+                            score: s + (1 - Math.abs(2 * l - 1)),
+                        };
+                    })
+                    .sort((a, b) => b.score - a.score);
 
                 const isCloseToBlack = (color) => {
                     const rgb = color.match(/\d+/g).map(Number);
                     const blackThreshold = 40;
-                    return rgb[0] < blackThreshold && rgb[1] < blackThreshold && rgb[2] < blackThreshold;
+                    return (
+                        rgb[0] < blackThreshold &&
+                        rgb[1] < blackThreshold &&
+                        rgb[2] < blackThreshold
+                    );
                 };
 
                 const minHueDifference = 0.1;
@@ -295,16 +349,26 @@ export default function (playerInstance, options) {
                 for (const colorObj of sortedColors) {
                     if (mostVibrantColors.length === 2) break;
                     if (!isCloseToBlack(colorObj.color)) {
-                        const enoughDifference = mostVibrantColors.every(existingColor => {
-                            const hueDifference = Math.abs(colorObj.h - existingColor.h);
-                            const saturationDifference = Math.abs(colorObj.s - existingColor.s);
-                            const lightnessDifference = Math.abs(colorObj.l - existingColor.l);
-                            return (
-                                hueDifference >= minHueDifference &&
-                                saturationDifference >= minSaturationDifference &&
-                                lightnessDifference >= minLightnessDifference
-                            );
-                        });
+                        const enoughDifference = mostVibrantColors.every(
+                            (existingColor) => {
+                                const hueDifference = Math.abs(
+                                    colorObj.h - existingColor.h,
+                                );
+                                const saturationDifference = Math.abs(
+                                    colorObj.s - existingColor.s,
+                                );
+                                const lightnessDifference = Math.abs(
+                                    colorObj.l - existingColor.l,
+                                );
+                                return (
+                                    hueDifference >= minHueDifference &&
+                                    saturationDifference >=
+                                        minSaturationDifference &&
+                                    lightnessDifference >=
+                                        minLightnessDifference
+                                );
+                            },
+                        );
                         if (enoughDifference) {
                             mostVibrantColors.push(colorObj);
                         }
@@ -315,12 +379,12 @@ export default function (playerInstance, options) {
                     mostVibrantColors = sortedColors.slice(0, 2);
                 }
 
-                resolve(mostVibrantColors.map(colorObj => colorObj.color));
+                resolve(mostVibrantColors.map((colorObj) => colorObj.color));
             };
 
             img.onerror = () => {
                 reject(new Error('Failed to load image'));
             };
         });
-    }
+    };
 }

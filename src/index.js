@@ -1,4 +1,3 @@
-
 if ('undefined' === typeof FP_HOMEPAGE) {
     globalThis.FP_HOMEPAGE = 'https://fluidplayer.com';
 }
@@ -8,13 +7,19 @@ if ('undefined' === typeof FP_BUILD_VERSION) {
 }
 
 if ('undefined' === typeof FP_ENV) {
-    const isLocalhost = globalThis
-        && globalThis.location
-        && (globalThis.location.hostname === 'localhost'
-            || globalThis.location.hostname === '127.0.0.1'
-            || globalThis.location.hostname === '');
+    const isLocalhost =
+        globalThis &&
+        globalThis.location &&
+        (globalThis.location.hostname === 'localhost' ||
+            globalThis.location.hostname === '127.0.0.1' ||
+            globalThis.location.hostname === '');
 
-    if ('undefined' !== typeof process && process && process.env && process.env.NODE_ENV) {
+    if (
+        'undefined' !== typeof process &&
+        process &&
+        process.env &&
+        process.env.NODE_ENV
+    ) {
         globalThis.FP_ENV = process.env.NODE_ENV;
     } else if (globalThis && !isLocalhost) {
         globalThis.FP_ENV = 'production';

@@ -1,6 +1,6 @@
 .suggested_tile_grid {
     --thumbnail-height: 120px;
-  }
+}
 
 .suggested_tile_grid {
     position: absolute;
@@ -27,7 +27,7 @@
     position: relative;
     border-radius: 2px;
     flex-shrink: 0;
-    width: calc(var(--thumbnail-height) * (16/9));
+    width: calc(var(--thumbnail-height) * (16 / 9));
     height: var(--thumbnail-height);
 
     img {
@@ -72,7 +72,7 @@
     backdrop-filter: blur(5px);
 }
 
-.suggested_tile_overlay>* {
+.suggested_tile_overlay > * {
     transform: translateY(20px);
     transition: transform 0.25s;
 }
@@ -81,7 +81,7 @@
     opacity: 1;
 }
 
-.suggested_tile_overlay:hover>* {
+.suggested_tile_overlay:hover > * {
     transform: translateY(0);
 }
 
@@ -114,8 +114,8 @@
     }
 
     /* hide the last 6 video tiles */
-    .suggested_tile:nth-child(n+7) {
-      display: none;
+    .suggested_tile:nth-child(n + 7) {
+        display: none;
     }
 
     .suggested_tile:first-child {
@@ -137,7 +137,7 @@
         width: initial;
         height: initial;
     }
-    .suggested_tile:nth-child(n+7) {
+    .suggested_tile:nth-child(n + 7) {
         display: flex;
     }
 }

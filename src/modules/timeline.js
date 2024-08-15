@@ -6,10 +6,12 @@ export default function (playerInstance, options) {
             playerInstance.displayOptions.vastOptions.vastTimeout,
             function () {
                 const convertVttRawData = function (vttRawData) {
-                    if (!(
-                        (typeof vttRawData.cues !== 'undefined') &&
-                        (vttRawData.cues.length)
-                    )) {
+                    if (
+                        !(
+                            typeof vttRawData.cues !== 'undefined' &&
+                            vttRawData.cues.length
+                        )
+                    ) {
                         return [];
                     }
 
@@ -19,15 +21,20 @@ export default function (playerInstance, options) {
 
                     for (let i = 0; i < vttRawData.cues.length; i++) {
                         tempThumbnailData = vttRawData.cues[i].text.split('#');
-                        let xCoords = 0, yCoords = 0, wCoords = 122.5, hCoords = 69;
+                        let xCoords = 0,
+                            yCoords = 0,
+                            wCoords = 122.5,
+                            hCoords = 69;
 
                         // .vtt file contains sprite corrdinates
                         if (
-                            (tempThumbnailData.length === 2) &&
-                            (tempThumbnailData[1].indexOf('xywh=') === 0)
+                            tempThumbnailData.length === 2 &&
+                            tempThumbnailData[1].indexOf('xywh=') === 0
                         ) {
-                            tempThumbnailCoordinates = tempThumbnailData[1].substring(5);
-                            tempThumbnailCoordinates = tempThumbnailCoordinates.split(',');
+                            tempThumbnailCoordinates =
+                                tempThumbnailData[1].substring(5);
+                            tempThumbnailCoordinates =
+                                tempThumbnailCoordinates.split(',');
 
                             if (tempThumbnailCoordinates.length === 4) {
                                 playerInstance.displayOptions.layoutControls.timelinePreview.spriteImage = true;
@@ -39,14 +46,31 @@ export default function (playerInstance, options) {
                         }
 
                         let imageUrl;
-                        if (playerInstance.displayOptions.layoutControls.timelinePreview.spriteRelativePath
-                            && playerInstance.displayOptions.layoutControls.timelinePreview.file.indexOf('/') !== -1
-                            && (typeof playerInstance.displayOptions.layoutControls.timelinePreview.sprite === 'undefined' || playerInstance.displayOptions.layoutControls.timelinePreview.sprite === '')
+                        if (
+                            playerInstance.displayOptions.layoutControls
+                                .timelinePreview.spriteRelativePath &&
+                            playerInstance.displayOptions.layoutControls.timelinePreview.file.indexOf(
+                                '/',
+                            ) !== -1 &&
+                            (typeof playerInstance.displayOptions.layoutControls
+                                .timelinePreview.sprite === 'undefined' ||
+                                playerInstance.displayOptions.layoutControls
+                                    .timelinePreview.sprite === '')
                         ) {
-                            imageUrl = playerInstance.displayOptions.layoutControls.timelinePreview.file.substring(0, playerInstance.displayOptions.layoutControls.timelinePreview.file.lastIndexOf('/'));
+                            imageUrl =
+                                playerInstance.displayOptions.layoutControls.timelinePreview.file.substring(
+                                    0,
+                                    playerInstance.displayOptions.layoutControls.timelinePreview.file.lastIndexOf(
+                                        '/',
+                                    ),
+                                );
                             imageUrl += '/' + tempThumbnailData[0];
                         } else {
-                            imageUrl = (playerInstance.displayOptions.layoutControls.timelinePreview.sprite ? playerInstance.displayOptions.layoutControls.timelinePreview.sprite : tempThumbnailData[0]);
+                            imageUrl = playerInstance.displayOptions
+                                .layoutControls.timelinePreview.sprite
+                                ? playerInstance.displayOptions.layoutControls
+                                      .timelinePreview.sprite
+                                : tempThumbnailData[0];
                         }
 
                         result.push({
@@ -56,7 +80,7 @@ export default function (playerInstance, options) {
                             x: xCoords,
                             y: yCoords,
                             w: wCoords,
-                            h: hCoords
+                            h: hCoords,
                         });
                     }
 
@@ -65,12 +89,14 @@ export default function (playerInstance, options) {
 
                 const xmlHttpReq = this;
 
-                if ((xmlHttpReq.readyState === 4) && (xmlHttpReq.status !== 200)) {
+                if (xmlHttpReq.readyState === 4 && xmlHttpReq.status !== 200) {
                     //The response returned an error.
                     return;
                 }
 
-                if (!((xmlHttpReq.readyState === 4) && (xmlHttpReq.status === 200))) {
+                if (
+                    !(xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200)
+                ) {
                     return;
                 }
 
@@ -79,13 +105,16 @@ export default function (playerInstance, options) {
                 const webVttParser = new window.WebVTTParser();
                 const vttRawData = webVttParser.parse(textResponse);
 
-                playerInstance.timelinePreviewData = convertVttRawData(vttRawData);
-            }
+                playerInstance.timelinePreviewData =
+                    convertVttRawData(vttRawData);
+            },
         );
     };
 
     playerInstance.generateTimelinePreviewTags = () => {
-        const progressContainer = playerInstance.domRef.wrapper.querySelector('.fluid_controls_progress_container');
+        const progressContainer = playerInstance.domRef.wrapper.querySelector(
+            '.fluid_controls_progress_container',
+        );
         const previewContainer = document.createElement('div');
 
         previewContainer.className = 'fluid_timeline_preview_container';
@@ -96,7 +125,8 @@ export default function (playerInstance, options) {
 
         //Shadow is needed to not trigger mouseleave event, that stops showing thumbnails, in case one scrubs a bit too fast and leaves current thumb before new one drawn.
         const previewContainerShadow = document.createElement('div');
-        previewContainerShadow.className = 'fluid_timeline_preview_container_shadow';
+        previewContainerShadow.className =
+            'fluid_timeline_preview_container_shadow';
         previewContainerShadow.style.position = 'absolute';
         previewContainerShadow.style.display = 'none';
         previewContainerShadow.style.opacity = 1;
@@ -105,8 +135,15 @@ export default function (playerInstance, options) {
 
     playerInstance.getThumbnailCoordinates = (second) => {
         if (playerInstance.timelinePreviewData.length) {
-            for (let i = 0; i < playerInstance.timelinePreviewData.length; i++) {
-                if ((second >= playerInstance.timelinePreviewData[i].startTime) && (second <= playerInstance.timelinePreviewData[i].endTime)) {
+            for (
+                let i = 0;
+                i < playerInstance.timelinePreviewData.length;
+                i++
+            ) {
+                if (
+                    second >= playerInstance.timelinePreviewData[i].startTime &&
+                    second <= playerInstance.timelinePreviewData[i].endTime
+                ) {
                     return playerInstance.timelinePreviewData[i];
                 }
             }
@@ -116,9 +153,16 @@ export default function (playerInstance, options) {
     };
 
     playerInstance.drawTimelinePreview = (event) => {
-        const timelinePreviewTag = playerInstance.domRef.wrapper.querySelector('.fluid_timeline_preview_container');
-        const timelinePreviewShadow = playerInstance.domRef.wrapper.querySelector('.fluid_timeline_preview_container_shadow');
-        const progressContainer = playerInstance.domRef.wrapper.querySelector('.fluid_controls_progress_container');
+        const timelinePreviewTag = playerInstance.domRef.wrapper.querySelector(
+            '.fluid_timeline_preview_container',
+        );
+        const timelinePreviewShadow =
+            playerInstance.domRef.wrapper.querySelector(
+                '.fluid_timeline_preview_container_shadow',
+            );
+        const progressContainer = playerInstance.domRef.wrapper.querySelector(
+            '.fluid_controls_progress_container',
+        );
         const totalWidth = progressContainer.clientWidth;
 
         if (playerInstance.isCurrentlyPlayingAd) {
@@ -134,25 +178,37 @@ export default function (playerInstance, options) {
         let hoverSecond = null;
 
         if (totalWidth) {
-            hoverSecond = playerInstance.currentVideoDuration * hoverX / totalWidth;
+            hoverSecond =
+                (playerInstance.currentVideoDuration * hoverX) / totalWidth;
 
             //get the corresponding thumbnail coordinates
-            const thumbnailCoordinates = playerInstance.getThumbnailCoordinates(hoverSecond);
+            const thumbnailCoordinates =
+                playerInstance.getThumbnailCoordinates(hoverSecond);
             timelinePreviewShadow.style.width = totalWidth + 'px';
             timelinePreviewShadow.style.display = 'block';
 
             if (thumbnailCoordinates !== false) {
                 timelinePreviewTag.style.width = thumbnailCoordinates.w + 'px';
                 timelinePreviewTag.style.height = thumbnailCoordinates.h + 'px';
-                timelinePreviewShadow.style.height = thumbnailCoordinates.h + 'px';
+                timelinePreviewShadow.style.height =
+                    thumbnailCoordinates.h + 'px';
                 timelinePreviewTag.style.background =
-                    'url(' + thumbnailCoordinates.image + ') no-repeat scroll -' + thumbnailCoordinates.x + 'px -' + thumbnailCoordinates.y + 'px';
-                timelinePreviewTag.style.left = hoverX - (thumbnailCoordinates.w / 2) + 'px';
+                    'url(' +
+                    thumbnailCoordinates.image +
+                    ') no-repeat scroll -' +
+                    thumbnailCoordinates.x +
+                    'px -' +
+                    thumbnailCoordinates.y +
+                    'px';
+                timelinePreviewTag.style.left =
+                    hoverX - thumbnailCoordinates.w / 2 + 'px';
                 timelinePreviewTag.style.display = 'block';
-                if (!playerInstance.displayOptions.layoutControls.timelinePreview.spriteImage) {
+                if (
+                    !playerInstance.displayOptions.layoutControls
+                        .timelinePreview.spriteImage
+                ) {
                     timelinePreviewTag.style.backgroundSize = 'contain';
                 }
-
             } else {
                 timelinePreviewTag.style.display = 'none';
             }
@@ -160,7 +216,8 @@ export default function (playerInstance, options) {
     };
 
     playerInstance.setupThumbnailPreview = () => {
-        let timelinePreview = playerInstance.displayOptions.layoutControls.timelinePreview;
+        let timelinePreview =
+            playerInstance.displayOptions.layoutControls.timelinePreview;
         if (!timelinePreview || !timelinePreview.type) {
             return;
         }
@@ -171,26 +228,59 @@ export default function (playerInstance, options) {
             eventOn = 'touchmove';
             eventOff = 'touchend';
         }
-        playerInstance.domRef.wrapper.querySelector('.fluid_controls_progress_container')
-            .addEventListener(eventOn, playerInstance.drawTimelinePreview.bind(playerInstance), false);
-        playerInstance.domRef.wrapper.querySelector('.fluid_controls_progress_container')
-            .addEventListener(eventOff, function (event) {
-                const progress = playerInstance.domRef.wrapper.querySelector('.fluid_controls_progress_container');
-                if (typeof event.clientX !== 'undefined' && progress.contains(document.elementFromPoint(event.clientX, event.clientY))) {
-                    //False positive (Chrome bug when fast click causes leave event)
-                    return;
-                }
-                playerInstance.domRef.wrapper.querySelector('.fluid_timeline_preview_container').style.display = 'none';
-                playerInstance.domRef.wrapper.querySelector('.fluid_timeline_preview_container_shadow').style.display = 'none';
-            }, false);
+        playerInstance.domRef.wrapper
+            .querySelector('.fluid_controls_progress_container')
+            .addEventListener(
+                eventOn,
+                playerInstance.drawTimelinePreview.bind(playerInstance),
+                false,
+            );
+        playerInstance.domRef.wrapper
+            .querySelector('.fluid_controls_progress_container')
+            .addEventListener(
+                eventOff,
+                function (event) {
+                    const progress =
+                        playerInstance.domRef.wrapper.querySelector(
+                            '.fluid_controls_progress_container',
+                        );
+                    if (
+                        typeof event.clientX !== 'undefined' &&
+                        progress.contains(
+                            document.elementFromPoint(
+                                event.clientX,
+                                event.clientY,
+                            ),
+                        )
+                    ) {
+                        //False positive (Chrome bug when fast click causes leave event)
+                        return;
+                    }
+                    playerInstance.domRef.wrapper.querySelector(
+                        '.fluid_timeline_preview_container',
+                    ).style.display = 'none';
+                    playerInstance.domRef.wrapper.querySelector(
+                        '.fluid_timeline_preview_container_shadow',
+                    ).style.display = 'none';
+                },
+                false,
+            );
         playerInstance.generateTimelinePreviewTags();
 
-        if ('VTT' === timelinePreview.type && typeof timelinePreview.file === 'string') {
-            import(/* webpackChunkName: "webvtt" */ '../../vendor/webvtt').then((it) => {
-                window.WebVTTParser = it.default;
-                playerInstance.setupThumbnailPreviewVtt();
-            });
-        } else if ('static' === timelinePreview.type && typeof timelinePreview.frames === 'object') {
+        if (
+            'VTT' === timelinePreview.type &&
+            typeof timelinePreview.file === 'string'
+        ) {
+            import(/* webpackChunkName: "webvtt" */ '../../vendor/webvtt').then(
+                (it) => {
+                    window.WebVTTParser = it.default;
+                    playerInstance.setupThumbnailPreviewVtt();
+                },
+            );
+        } else if (
+            'static' === timelinePreview.type &&
+            typeof timelinePreview.frames === 'object'
+        ) {
             timelinePreview.spriteImage = true;
             playerInstance.timelinePreviewData = timelinePreview.frames;
         } else {

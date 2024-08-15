@@ -6,24 +6,27 @@ export default function (playerInstance, options) {
             playerInstance.displayOptions.vastOptions.vastTimeout,
             function () {
                 const convertVttRawData = function (vttRawData) {
-                    if (!(
-                        (typeof vttRawData.cues !== 'undefined') &&
-                        (vttRawData.cues.length)
-                    )) {
+                    if (
+                        !(
+                            typeof vttRawData.cues !== 'undefined' &&
+                            vttRawData.cues.length
+                        )
+                    ) {
                         return [];
                     }
 
                     const result = [];
 
                     for (let i = 0; i < vttRawData.cues.length; i++) {
-                        let tempThumbnailData = vttRawData.cues[i].text.split('#');
+                        let tempThumbnailData =
+                            vttRawData.cues[i].text.split('#');
 
                         result.push({
                             startTime: vttRawData.cues[i].startTime,
                             endTime: vttRawData.cues[i].endTime,
                             text: vttRawData.cues[i].text,
-                            cue: vttRawData.cues[i]
-                        })
+                            cue: vttRawData.cues[i],
+                        });
                     }
 
                     return result;
@@ -31,18 +34,23 @@ export default function (playerInstance, options) {
 
                 const xmlHttpReq = this;
 
-                if ((xmlHttpReq.readyState === 4) && (xmlHttpReq.status !== 200)) {
+                if (xmlHttpReq.readyState === 4 && xmlHttpReq.status !== 200) {
                     //The response returned an error.
                     return;
                 }
 
-                if (!((xmlHttpReq.readyState === 4) && (xmlHttpReq.status === 200))) {
+                if (
+                    !(xmlHttpReq.readyState === 4 && xmlHttpReq.status === 200)
+                ) {
                     return;
                 }
 
                 const textResponse = xmlHttpReq.responseText;
 
-                const parser = new WebVTT.Parser(window, WebVTT.StringDecoder());
+                const parser = new WebVTT.Parser(
+                    window,
+                    WebVTT.StringDecoder(),
+                );
                 const cues = [];
                 const regions = []; // TODO: unused?
                 parser.oncue = function (cue) {
@@ -54,8 +62,7 @@ export default function (playerInstance, options) {
                 parser.parse(textResponse);
                 parser.flush();
                 playerInstance.subtitlesData = cues;
-
-            }
+            },
         );
     };
 
@@ -65,23 +72,34 @@ export default function (playerInstance, options) {
 
         if (!playerInstance.displayOptions.layoutControls.subtitlesEnabled) {
             // No other video subtitles
-            playerInstance.domRef.wrapper.querySelector('.fluid_control_subtitles').style.display = 'none';
+            playerInstance.domRef.wrapper.querySelector(
+                '.fluid_control_subtitles',
+            ).style.display = 'none';
             return;
         }
 
         const tracks = [];
-        tracks.push({'label': subtitlesOff, 'url': 'na', 'lang': subtitlesOff});
+        tracks.push({ label: subtitlesOff, url: 'na', lang: subtitlesOff });
 
-        const tracksList = playerInstance.domRef.player.querySelectorAll('track');
+        const tracksList =
+            playerInstance.domRef.player.querySelectorAll('track');
 
         [].forEach.call(tracksList, function (track) {
             if (track.kind === 'metadata' && track.src) {
-                tracks.push({'label': track.label, 'url': track.src, 'lang': track.srclang, 'default': track.default});
+                tracks.push({
+                    label: track.label,
+                    url: track.src,
+                    lang: track.srclang,
+                    default: track.default,
+                });
             }
         });
 
         playerInstance.subtitlesTracks = tracks;
-        const subtitlesChangeButton = playerInstance.domRef.wrapper.querySelector('.fluid_control_subtitles');
+        const subtitlesChangeButton =
+            playerInstance.domRef.wrapper.querySelector(
+                '.fluid_control_subtitles',
+            );
         subtitlesChangeButton.style.display = 'inline-block';
         let appendSubtitleChange = false;
 
@@ -90,16 +108,22 @@ export default function (playerInstance, options) {
         subtitlesChangeList.style.display = 'none';
 
         let hasSelectedSubtitle = false;
-        const hasDefault = !!playerInstance.subtitlesTracks.find(track => track.default);
+        const hasDefault = !!playerInstance.subtitlesTracks.find(
+            (track) => track.default,
+        );
         playerInstance.subtitlesTracks.forEach(function (subtitle) {
-            let subtitleSelected = ''
+            let subtitleSelected = '';
 
-            const subtitlesOnByDefault = playerInstance.displayOptions.layoutControls.subtitlesOnByDefault;
+            const subtitlesOnByDefault =
+                playerInstance.displayOptions.layoutControls
+                    .subtitlesOnByDefault;
 
-            if (!hasSelectedSubtitle && (subtitlesOnByDefault && subtitle.default ||
-                (!hasDefault && subtitle.label !== subtitlesOff) ||
-                playerInstance.subtitlesTracks.length === 1) ||
-                !subtitlesOnByDefault && subtitle.label === subtitlesOff
+            if (
+                (!hasSelectedSubtitle &&
+                    ((subtitlesOnByDefault && subtitle.default) ||
+                        (!hasDefault && subtitle.label !== subtitlesOff) ||
+                        playerInstance.subtitlesTracks.length === 1)) ||
+                (!subtitlesOnByDefault && subtitle.label === subtitlesOff)
             ) {
                 subtitleSelected = 'subtitle_selected';
                 playerInstance.subtitleFetchParse(subtitle);
@@ -108,21 +132,36 @@ export default function (playerInstance, options) {
 
             const subtitlesChangeDiv = document.createElement('div');
             subtitlesChangeDiv.className = 'fluid_subtitle_list_item';
-            subtitlesChangeDiv.innerHTML = '<span class="subtitle_button_icon ' + subtitleSelected + '"></span>' + subtitle.label;
+            subtitlesChangeDiv.innerHTML =
+                '<span class="subtitle_button_icon ' +
+                subtitleSelected +
+                '"></span>' +
+                subtitle.label;
 
             subtitlesChangeDiv.addEventListener('click', function (event) {
                 event.stopPropagation();
                 const subtitleChangedTo = this;
-                const subtitleIcons = playerInstance.domRef.wrapper.getElementsByClassName('subtitle_button_icon');
+                const subtitleIcons =
+                    playerInstance.domRef.wrapper.getElementsByClassName(
+                        'subtitle_button_icon',
+                    );
 
                 for (let i = 0; i < subtitleIcons.length; i++) {
-                    subtitleIcons[i].className = subtitleIcons[i].className.replace("subtitle_selected", "");
+                    subtitleIcons[i].className = subtitleIcons[
+                        i
+                    ].className.replace('subtitle_selected', '');
                 }
 
                 subtitleChangedTo.firstChild.className += ' subtitle_selected';
 
                 playerInstance.subtitlesTracks.forEach(function (subtitle) {
-                    if (subtitle.label === subtitleChangedTo.innerText.replace(/(\r\n\t|\n|\r\t)/gm, "")) {
+                    if (
+                        subtitle.label ===
+                        subtitleChangedTo.innerText.replace(
+                            /(\r\n\t|\n|\r\t)/gm,
+                            '',
+                        )
+                    ) {
                         if (subtitle.label === subtitlesOff) {
                             playerInstance.subtitlesData = [];
                         } else {
@@ -131,25 +170,37 @@ export default function (playerInstance, options) {
                     }
                 });
                 playerInstance.openCloseSubtitlesSwitch();
-
             });
 
             subtitlesChangeList.appendChild(subtitlesChangeDiv);
             appendSubtitleChange = true;
-
         });
 
         if (appendSubtitleChange) {
             subtitlesChangeButton.appendChild(subtitlesChangeList);
-            subtitlesChangeButton.removeEventListener('click', handleSubtitlesChange);
-            subtitlesChangeButton.addEventListener('click', handleSubtitlesChange);
+            subtitlesChangeButton.removeEventListener(
+                'click',
+                handleSubtitlesChange,
+            );
+            subtitlesChangeButton.addEventListener(
+                'click',
+                handleSubtitlesChange,
+            );
         } else {
             // Didn't give any subtitle options
-            playerInstance.domRef.wrapper.querySelector('.fluid_control_subtitles').style.display = 'none';
+            playerInstance.domRef.wrapper.querySelector(
+                '.fluid_control_subtitles',
+            ).style.display = 'none';
         }
 
-        playerInstance.domRef.player.removeEventListener('timeupdate', videoPlayerSubtitlesUpdate);
-        playerInstance.domRef.player.addEventListener('timeupdate', videoPlayerSubtitlesUpdate);
+        playerInstance.domRef.player.removeEventListener(
+            'timeupdate',
+            videoPlayerSubtitlesUpdate,
+        );
+        playerInstance.domRef.player.addEventListener(
+            'timeupdate',
+            videoPlayerSubtitlesUpdate,
+        );
     };
 
     function handleSubtitlesChange() {
@@ -168,7 +219,9 @@ export default function (playerInstance, options) {
         //if content is playing then no subtitles
         let currentTime = Math.floor(videoPlayer.currentTime);
         let subtitlesAvailable = false;
-        let subtitlesContainer = playerInstance.domRef.wrapper.querySelector('.fluid_subtitles_container');
+        let subtitlesContainer = playerInstance.domRef.wrapper.querySelector(
+            '.fluid_subtitles_container',
+        );
 
         if (playerInstance.isCurrentlyPlayingAd) {
             subtitlesContainer.innerHTML = '';
@@ -176,9 +229,17 @@ export default function (playerInstance, options) {
         }
 
         for (let i = 0; i < playerInstance.subtitlesData.length; i++) {
-            if (currentTime >= (playerInstance.subtitlesData[i].startTime) && currentTime <= (playerInstance.subtitlesData[i].endTime)) {
+            if (
+                currentTime >= playerInstance.subtitlesData[i].startTime &&
+                currentTime <= playerInstance.subtitlesData[i].endTime
+            ) {
                 subtitlesContainer.innerHTML = '';
-                subtitlesContainer.appendChild(WebVTT.convertCueToDOMTree(window, playerInstance.subtitlesData[i].text));
+                subtitlesContainer.appendChild(
+                    WebVTT.convertCueToDOMTree(
+                        window,
+                        playerInstance.subtitlesData[i].text,
+                    ),
+                );
                 subtitlesAvailable = true;
             }
         }
@@ -189,7 +250,9 @@ export default function (playerInstance, options) {
     };
 
     playerInstance.openCloseSubtitlesSwitch = () => {
-        const subtitleChangeList = playerInstance.domRef.wrapper.querySelector('.fluid_subtitles_list');
+        const subtitleChangeList = playerInstance.domRef.wrapper.querySelector(
+            '.fluid_subtitles_list',
+        );
 
         if (playerInstance.isCurrentlyPlayingAd) {
             subtitleChangeList.style.display = 'none';
@@ -211,7 +274,10 @@ export default function (playerInstance, options) {
     playerInstance.createSubtitles = () => {
         const divSubtitlesContainer = document.createElement('div');
         divSubtitlesContainer.className = 'fluid_subtitles_container';
-        playerInstance.domRef.player.parentNode.insertBefore(divSubtitlesContainer, playerInstance.domRef.player.nextSibling);
+        playerInstance.domRef.player.parentNode.insertBefore(
+            divSubtitlesContainer,
+            playerInstance.domRef.player.nextSibling,
+        );
 
         if (!playerInstance.displayOptions.layoutControls.subtitlesEnabled) {
             return;
