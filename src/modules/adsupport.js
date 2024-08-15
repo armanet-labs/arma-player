@@ -97,13 +97,20 @@ export default function (playerInstance, options) {
                     playerInstance.addSkipButton();
                 }
 
-                playerInstance.domRef.player.loop = false;
-
-                playerInstance.addAdCountdown();
-
                 playerInstance.domRef.player.removeAttribute('controls'); //Remove the default Controls
 
                 playerInstance.vastLogoBehaviour(true);
+
+                if (playerInstance.displayOptions.vastOptions.outstream) {
+                    playerInstance.domRef.player.loop = true;
+                    playerInstance.removeSkipButton();
+                    playerInstance.removeAdCountdown();
+                    playerInstance.toggleControlBar(false);
+                    playerInstance.hideControlBar();
+                } else {
+                    playerInstance.domRef.player.loop = false;
+                    playerInstance.addAdCountdown();
+                }
 
                 const progressbarContainer = playerInstance.domRef.player.parentNode.getElementsByClassName('fluid_controls_currentprogress');
                 for (let i = 0; i < progressbarContainer.length; i++) {
@@ -204,7 +211,6 @@ export default function (playerInstance, options) {
                     playerInstance.playMainVideoWhenVastFails(403);
                     return false;
                 }
-
                 playerInstance.domRef.player.addEventListener('loadedmetadata', playerInstance.switchPlayerToVastMode);
 
                 playerInstance.domRef.player.src = selectedMediaFile.src;
@@ -1334,7 +1340,10 @@ export default function (playerInstance, options) {
     playerInstance.checkForNextAd = () => {
         const availableNextAdID = playerInstance.getNextAdPod();
         if (availableNextAdID === null) {
-            playerInstance.switchToMainVideo();
+            if (!playerInstance.displayOptions.vastOptions.outstream) {
+                playerInstance.switchToMainVideo();
+            }
+
             playerInstance.vastOptions = null;
             playerInstance.adFinished = true;
         } else {

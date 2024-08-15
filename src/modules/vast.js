@@ -744,6 +744,19 @@ export default function (playerInstance, options) {
      */
     async function resolveAdTreeRequests(url, maxDepth, baseNode = {}, currentDepth = 0, followAdditionalWrappers = true) {
         const adTree = { ...baseNode, children: [] };
+
+        if (playerInstance.displayOptions.vastOptions.vastStatic) {
+            const parser = new DOMParser();
+            const responseXML = parser.parseFromString(atob(url), 'text/xml');
+            const adElements = Array.from(responseXML.getElementsByTagName('Ad'));
+            for (const adElement of adElements) {
+                const adNode = { data: adElement };
+                adTree.children.push({ tagType: 'inLine', ...adNode });
+            }
+
+            return adTree;
+        }
+
         const { responseXML } = await playerInstance.sendRequestAsync(url, true, playerInstance.displayOptions.vastOptions.vastTimeout);
         const adElements = Array.from(responseXML.getElementsByTagName('Ad'));
 

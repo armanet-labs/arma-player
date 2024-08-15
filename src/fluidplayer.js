@@ -258,6 +258,8 @@ const fluidPlayerClass = function () {
                 adCTATextVast: false,
                 adClickable: true,
                 vastTimeout: 5000,
+                vastStatic: false,
+                outstream: false,
                 showProgressbarMarkers: false,
                 allowVPAID: false,
                 showPlayButton: false,
