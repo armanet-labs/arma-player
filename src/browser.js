@@ -23,8 +23,8 @@ if (window) {
         mute: true,
         autoPlay: true,
         controlBar: {
-            autoHideTimeout: 0.5,
-        }
+          autoHideTimeout: 0.5,
+        },
       },
       vastOptions: {
         skipButtonCaption: '',
@@ -32,6 +32,7 @@ if (window) {
         adCTAText: '',
         fillToContainer: true,
         vastStatic: true,
+        vastWithCredentials: false,
         outstream: true,
         adList: [
           {

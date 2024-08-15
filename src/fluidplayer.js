@@ -259,6 +259,7 @@ const fluidPlayerClass = function () {
                 adClickable: true,
                 vastTimeout: 5000,
                 vastStatic: false,
+                vastWithCredentials: false,
                 outstream: false,
                 showProgressbarMarkers: false,
                 allowVPAID: false,

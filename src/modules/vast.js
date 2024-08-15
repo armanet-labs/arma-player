@@ -757,7 +757,7 @@ export default function (playerInstance, options) {
             return adTree;
         }
 
-        const { responseXML } = await playerInstance.sendRequestAsync(url, true, playerInstance.displayOptions.vastOptions.vastTimeout);
+        const { responseXML } = await playerInstance.sendRequestAsync(url, playerInstance.displayOptions.vastOptions.vastWithCredentials, playerInstance.displayOptions.vastOptions.vastTimeout);
         const adElements = Array.from(responseXML.getElementsByTagName('Ad'));
 
         for (const adElement of adElements) {
