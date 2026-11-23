@@ -3,26 +3,14 @@
 // Player modules
 import VPAIDModule from './modules/vpaid';
 import VASTModule from './modules/vast';
-import CardboardModule from './modules/cardboard';
-import SubtitleModule from './modules/subtitles';
-import TimelineModule from './modules/timeline';
 import AdSupportModule from './modules/adsupport';
-import StreamingModule from './modules/streaming';
 import UtilsModule from './modules/utils';
-import SuggestedVideosModule from './modules/suggestedVideos';
-import MiniPlayerModule from './modules/miniplayer';
 
 const FP_MODULES = [
     VPAIDModule,
     VASTModule,
-    CardboardModule,
-    SubtitleModule,
-    TimelineModule,
     AdSupportModule,
-    StreamingModule,
     UtilsModule,
-    SuggestedVideosModule,
-    MiniPlayerModule,
 ];
 
 // Determine build mode
@@ -102,11 +90,6 @@ const fluidPlayerClass = function () {
         playerNode.classList.add('js-fluid-player');
 
         self.domRef.player = playerNode;
-        self.vrROTATION_POSITION = 0.1;
-        self.vrROTATION_SPEED = 80;
-        self.vrMode = false;
-        self.vrPanorama = null;
-        self.vrViewer = null;
         self.vpaidTimer = null;
         self.vpaidAdUnit = null;
         self.vastOptions = null;
@@ -121,7 +104,6 @@ const fluidPlayerClass = function () {
         self.currentVideoDuration = 0;
         self.firstPlayLaunched = false;
         self.suppressClickthrough = false;
-        self.timelinePreviewData = [];
         self.mainVideoCurrentTime = 0;
         self.mainVideoDuration = 0;
         self.isTimer = false;
@@ -132,7 +114,6 @@ const fluidPlayerClass = function () {
         self.adGroupedByRolls = {};
         self.onPauseRollAdPods = [];
         self.currentOnPauseRollAd = '';
-        self.preRollAdsResolved = false;
         self.preRollAdPods = [];
         self.preRollAdPodsLength = 0;
         self.preRollVastResolved = 0;
@@ -146,17 +127,12 @@ const fluidPlayerClass = function () {
         self.isUserActive = null;
         self.nonLinearVerticalAlign = 'bottom';
         self.vpaidNonLinearCloseButton = true;
-        self.showTimeOnHover = true;
         self.initialAnimationSet = true;
         self.theatreMode = false;
         self.theatreModeAdvanced = false;
         self.fullscreenMode = false;
         self.originalWidth = playerNode.offsetWidth;
         self.originalHeight = playerNode.offsetHeight;
-        self.dashPlayer = false;
-        self.hlsPlayer = false;
-        self.dashScriptLoaded = false;
-        self.hlsScriptLoaded = false;
         self.isPlayingMedia = false;
         self.isSwitchingSource = false;
         self.isLoading = false;
@@ -189,10 +165,6 @@ const fluidPlayerClass = function () {
                 keyboardControl: true,
                 allowDownload: false,
                 playbackRateEnabled: false,
-                subtitlesEnabled: false,
-                subtitlesOnByDefault: true,
-                showCardBoardView: false,
-                showCardBoardJoystick: false,
                 allowTheatre: true,
                 doubleclickFullscreen: true,
                 theatreSettings: {
@@ -220,10 +192,6 @@ const fluidPlayerClass = function () {
                     animated: true,
                     playbackRates: ['x2', 'x1.5', 'x1', 'x0.5'],
                 },
-                timelinePreview: {
-                    spriteImage: false,
-                    spriteRelativePath: false,
-                },
                 htmlOnPauseBlock: {
                     html: null,
                     height: null,
@@ -245,18 +213,6 @@ const fluidPlayerClass = function () {
                     controls: true,
                     links: [],
                 },
-                miniPlayer: {
-                    enabled: true,
-                    width: 400,
-                    height: 225,
-                    widthMobile: 50,
-                    placeholderText: 'Playing in Miniplayer',
-                    position: 'bottom right',
-                    autoToggle: false,
-                },
-            },
-            suggestedVideos: {
-                configUrl: null,
             },
             vastOptions: {
                 adList: {},
@@ -286,31 +242,15 @@ const fluidPlayerClass = function () {
                     vastVideoEndedCallback: function () {},
                 },
             },
-            hls: {
-                overrideNative: false,
-            },
             captions: {
                 play: 'Play',
                 pause: 'Pause',
                 mute: 'Mute',
                 unmute: 'Unmute',
                 fullscreen: 'Fullscreen',
-                subtitles: 'Subtitles',
                 exitFullscreen: 'Exit Fullscreen',
             },
             debug: FP_RUNTIME_DEBUG,
-            modules: {
-                configureHls: (options) => {
-                    return options;
-                },
-                onBeforeInitHls: (hls) => {},
-                onAfterInitHls: (hls) => {},
-                configureDash: (options) => {
-                    return options;
-                },
-                onBeforeInitDash: (dash) => {},
-                onAfterInitDash: (dash) => {},
-            },
             onBeforeXMLHttpRequestOpen: (request) => {},
             onBeforeXMLHttpRequest: (request) => {
                 if (FP_RUNTIME_DEBUG || FP_DEVELOPMENT_MODE) {
@@ -318,13 +258,6 @@ const fluidPlayerClass = function () {
                 }
             },
         };
-
-        if (!!options.hlsjsConfig) {
-            console.error(
-                '[FP_ERROR] player option hlsjsConfig is removed and has no effect. ' +
-                    'Use module callbacks instead!',
-            );
-        }
 
         /**
          * Replaces values from objects without replacing the default object
@@ -377,11 +310,6 @@ const fluidPlayerClass = function () {
             playerNode.addEventListener('loadedmetadata', self.mainVideoReady);
         }
 
-        if (self.displayOptions.layoutControls.showCardBoardView) {
-            // This fixes cross origin errors on three.js
-            playerNode.setAttribute('crossOrigin', 'anonymous');
-        }
-
         //Manually load the video duration if the video was loaded before adding the event listener
         self.currentVideoDuration = self.getCurrentVideoDuration();
 
@@ -416,44 +344,16 @@ const fluidPlayerClass = function () {
 
         self.createVideoSourceSwitch();
 
-        self.createSubtitles();
-
-        self.createCardboard();
-
         self.userActivityChecker();
 
         self.setVastList();
 
         self.setPersistentSettings();
 
-        self.generateSuggestedVideoList();
-
-        // Previously prevented to be initialized if preRolls were set up
-        // but now the streamers support reinitialization
-        self.initialiseStreamers();
-
         const _play_videoPlayer = playerNode.play;
 
         playerNode.play = function () {
             let promise = null;
-
-            if (self.displayOptions.layoutControls.showCardBoardView) {
-                if (
-                    typeof DeviceOrientationEvent !== 'undefined' &&
-                    typeof DeviceOrientationEvent.requestPermission ===
-                        'function'
-                ) {
-                    DeviceOrientationEvent.requestPermission()
-                        .then(function (response) {
-                            if (response === 'granted') {
-                                self.debugMessage(
-                                    'DeviceOrientationEvent permission granted!',
-                                );
-                            }
-                        })
-                        .catch(console.error);
-                }
-            }
 
             try {
                 promise = _play_videoPlayer.apply(this, arguments);
@@ -519,11 +419,7 @@ const fluidPlayerClass = function () {
             }
         };
 
-        if (
-            !!self.displayOptions.layoutControls.autoPlay &&
-            !self.dashScriptLoaded &&
-            !self.hlsScriptLoaded
-        ) {
+        if (!!self.displayOptions.layoutControls.autoPlay) {
             //There is known issue with Safari 11+, will prevent autoPlay, so we wont try
             const browserVersion = self.getBrowserVersion();
 
@@ -601,27 +497,6 @@ const fluidPlayerClass = function () {
         if (loaderDiv) {
             loaderDiv.style.display = showLoader ? 'table' : 'none';
         }
-    };
-
-    self.sendRequest = (
-        url,
-        withCredentials,
-        timeout,
-        functionReadyStateChange,
-    ) => {
-        const xmlHttpReq = new XMLHttpRequest();
-
-        xmlHttpReq.onreadystatechange = functionReadyStateChange;
-
-        self.displayOptions.onBeforeXMLHttpRequestOpen(xmlHttpReq);
-
-        xmlHttpReq.open('GET', url, true);
-        xmlHttpReq.withCredentials = withCredentials;
-        xmlHttpReq.timeout = timeout;
-
-        self.displayOptions.onBeforeXMLHttpRequest(xmlHttpReq);
-
-        xmlHttpReq.send();
     };
 
     /**
@@ -704,16 +579,6 @@ const fluidPlayerClass = function () {
             self.switchToMainVideo();
             self.playPauseToggle();
         }
-
-        // Event listener doesn't wait on flags to be flipped from post roll ads, needs small time out to compensate
-        setTimeout(() => {
-            if (
-                !self.isCurrentlyPlayingAd &&
-                self.displayOptions.suggestedVideos.configUrl
-            ) {
-                self.displaySuggestedVideos();
-            }
-        }, 100);
     };
 
     self.getCurrentTime = () => {
@@ -873,31 +738,11 @@ const fluidPlayerClass = function () {
             'fluid_button fluid_control_fullscreen fluid_button_fullscreen';
         controls.rightContainer.appendChild(controls.fullscreen);
 
-        if (options.miniPlayer.enabled) {
-            // Right container -> MiniPlayer
-            controls.miniPlayer = document.createElement('div');
-            controls.miniPlayer.className =
-                'fluid_button fluid_control_mini_player fluid_button_mini_player';
-            controls.rightContainer.appendChild(controls.miniPlayer);
-        }
-
         // Right container -> Theatre
         controls.theatre = document.createElement('div');
         controls.theatre.className =
             'fluid_button fluid_control_theatre fluid_button_theatre';
         controls.rightContainer.appendChild(controls.theatre);
-
-        // Right container -> Cardboard
-        controls.cardboard = document.createElement('div');
-        controls.cardboard.className =
-            'fluid_button fluid_control_cardboard fluid_button_cardboard';
-        controls.rightContainer.appendChild(controls.cardboard);
-
-        // Right container -> Subtitles
-        controls.subtitles = document.createElement('div');
-        controls.subtitles.className =
-            'fluid_button fluid_control_subtitles fluid_button_subtitles';
-        controls.rightContainer.appendChild(controls.subtitles);
 
         // Right container -> Video source
         controls.videoSource = document.createElement('div');
@@ -1085,19 +930,10 @@ const fluidPlayerClass = function () {
     self.controlDurationUpdate = () => {
         const currentPlayTime = self.formatTime(self.domRef.player.currentTime);
 
-        let isLiveHls = false;
-        if (self.hlsPlayer) {
-            isLiveHls =
-                self.hlsPlayer.levels &&
-                self.hlsPlayer.levels[self.hlsPlayer.currentLevel] &&
-                self.hlsPlayer.levels[self.hlsPlayer.currentLevel].details.live;
-        }
-
         let durationText;
         if (
             isNaN(self.currentVideoDuration) ||
-            !isFinite(self.currentVideoDuration) ||
-            isLiveHls
+            !isFinite(self.currentVideoDuration)
         ) {
             durationText = currentPlayTime;
         } else {
@@ -1464,21 +1300,12 @@ const fluidPlayerClass = function () {
     self.onProgressbarMouseDown = (event) => {
         self.displayOptions.layoutControls.playPauseAnimation = false;
         // we need an initial position for touchstart events, as mouse up has no offset x for iOS
-        let initialPosition;
-
-        if (self.displayOptions.layoutControls.showCardBoardView) {
-            initialPosition = self.getEventOffsetX(
-                event,
-                event.target.parentNode,
-            );
-        } else {
-            initialPosition = self.getEventOffsetX(
-                event,
-                self.domRef.wrapper.querySelector(
-                    '.fluid_controls_progress_container',
-                ),
-            );
-        }
+        let initialPosition = self.getEventOffsetX(
+            event,
+            self.domRef.wrapper.querySelector(
+                '.fluid_controls_progress_container',
+            ),
+        );
 
         if (self.isCurrentlyPlayingAd) {
             return;
@@ -1499,8 +1326,6 @@ const fluidPlayerClass = function () {
                 self.domRef.player.currentTime =
                     (self.currentVideoDuration * timeBarX) / totalWidth;
             }
-
-            self.hideSuggestedVideos();
         };
 
         const onProgressbarMouseMove = (event) => {
@@ -1758,9 +1583,6 @@ const fluidPlayerClass = function () {
                     self.onKeyboardSeekPosition(keyCode);
                     event.preventDefault();
                     break;
-                case 73: // i
-                    self.toggleMiniPlayer(undefined, true);
-                    break;
             }
 
             return false;
@@ -1846,7 +1668,6 @@ const fluidPlayerClass = function () {
     };
 
     self.playPauseToggle = () => {
-        self.hideSuggestedVideos();
         const isFirstStart = !self.firstPlayLaunched;
         const preRolls = self.findRoll('preRoll');
 
@@ -1870,16 +1691,11 @@ const fluidPlayerClass = function () {
                         Math.floor(self.currentVideoDuration) ===
                         Math.floor(self.domRef.player.currentTime)
                     ) {
-                        self.initialiseStreamers();
                         self.domRef.player.currentTime = 0;
                     }
 
                     // resume the regular linear vast or content video player
-                    if (self.dashPlayer) {
-                        self.dashPlayer.play();
-                    } else {
-                        self.domRef.player.play();
-                    }
+                    self.domRef.player.play();
                 }
 
                 self.playPauseAnimationToggle(true);
@@ -2011,23 +1827,13 @@ const fluidPlayerClass = function () {
         const isMobileChecks = self.getMobileOs();
         const eventOn = isMobileChecks.userOs ? 'touchstart' : 'mousedown';
 
-        if (self.displayOptions.layoutControls.showCardBoardView) {
-            self.trackEvent(
-                self.domRef.player.parentNode,
+        self.domRef.wrapper
+            .querySelector('.fluid_controls_progress_container')
+            .addEventListener(
                 eventOn,
-                '.fluid_controls_progress_container',
                 (event) => self.onProgressbarMouseDown(event),
-                false,
+                { passive: true },
             );
-        } else {
-            self.domRef.wrapper
-                .querySelector('.fluid_controls_progress_container')
-                .addEventListener(
-                    eventOn,
-                    (event) => self.onProgressbarMouseDown(event),
-                    { passive: true },
-                );
-        }
 
         //Set the volume controls
         self.domRef.wrapper
@@ -2077,19 +1883,6 @@ const fluidPlayerClass = function () {
             ).style.display = 'none';
         }
 
-        // Mini Player
-        if (
-            self.displayOptions.layoutControls.miniPlayer.enabled &&
-            !self.isInIframe
-        ) {
-            self.trackEvent(
-                self.domRef.player.parentNode,
-                'click',
-                '.fluid_control_mini_player',
-                () => self.toggleMiniPlayer(undefined, true),
-            );
-        }
-
         self.domRef.player.addEventListener('ratechange', () => {
             if (self.isCurrentlyPlayingAd) {
                 self.playbackRate = 1;
@@ -2097,12 +1890,7 @@ const fluidPlayerClass = function () {
         });
     };
 
-    // Create the time position preview only if the vtt previews aren't enabled
     self.createTimePositionPreview = () => {
-        if (!self.showTimeOnHover) {
-            return;
-        }
-
         const progressContainer = self.domRef.wrapper.querySelector(
             '.fluid_controls_progress_container',
         );
@@ -2276,7 +2064,6 @@ const fluidPlayerClass = function () {
             controlForwardBackward:
                 !!self.displayOptions.layoutControls.controlForwardBackward
                     .show,
-            miniPlayer: self.displayOptions.layoutControls.miniPlayer,
         });
 
         // Remove the default controls
@@ -2331,8 +2118,6 @@ const fluidPlayerClass = function () {
 
         self.setCustomControls();
 
-        self.setupThumbnailPreview();
-
         self.createTimePositionPreview();
 
         self.posterImage();
@@ -2344,8 +2129,6 @@ const fluidPlayerClass = function () {
         self.createPlaybackList();
 
         self.createDownload();
-
-        self.toggleMiniPlayerScreenDetection();
 
         if (!!self.displayOptions.layoutControls.controlForwardBackward.show) {
             self.initSkipControls();
@@ -2627,7 +2410,6 @@ const fluidPlayerClass = function () {
                 continue;
             }
 
-            // On suggested videos, if the resolution doesn't exist in the new source list, use the first one in the list
             // This gets overwritten if it's needed by setPersistentSettings()
             if (firstSource && !initialLoad) {
                 self.domRef.player.src = source.url;
@@ -2694,7 +2476,6 @@ const fluidPlayerClass = function () {
 
         if (appendSourceChange) {
             sourceChangeButton.appendChild(sourceChangeList);
-            // To reset player for suggested videos, in case the event listener already exists
             sourceChangeButton.removeEventListener(
                 'click',
                 self.openCloseVideoSourceSwitch,
@@ -2716,7 +2497,7 @@ const fluidPlayerClass = function () {
             '.fluid_video_sources_list',
         );
 
-        if (self.isCurrentlyPlayingAd || self.isShowingSuggestedVideos()) {
+        if (self.isCurrentlyPlayingAd) {
             sourceChangeList.style.display = 'none';
             return;
         }
@@ -2758,7 +2539,6 @@ const fluidPlayerClass = function () {
         self.domRef.player.src = url;
         self.originalSrc = url;
         self.displayOptions.layoutControls.mediaType = self.getCurrentSrcType();
-        self.initialiseStreamers();
     };
 
     self.setCurrentTimeAndPlay = (newCurrentTime, shouldPlay) => {
@@ -3530,25 +3310,6 @@ const fluidPlayerClass = function () {
         self.domRef.player.parentNode.insertBefore(containerDiv, null);
     };
 
-    // This is called when a media type is unsupported. We'll find the current source and try set the next source if it exists
-    self.nextSource = () => {
-        const sources = self.domRef.player.getElementsByTagName('source');
-
-        if (!sources.length) {
-            return null;
-        }
-
-        for (let i = 0; i < sources.length - 1; i++) {
-            if (
-                sources[i].getAttribute('src') === self.originalSrc &&
-                sources[i + 1].getAttribute('src')
-            ) {
-                self.setVideoSource(sources[i + 1].getAttribute('src'));
-                return;
-            }
-        }
-    };
-
     self.inIframe = () => {
         try {
             return window.self !== window.top;
@@ -3791,12 +3552,6 @@ const fluidPlayerClass = function () {
                     functionCall(self.getCurrentTime());
                 });
                 break;
-            case 'miniPlayerToggle':
-                self.domRef.player.addEventListener(
-                    'miniPlayerToggle',
-                    functionCall,
-                );
-                break;
             default:
                 console.log('[FP_ERROR] Event not recognised');
                 break;
@@ -3863,33 +3618,10 @@ const fluidPlayerClass = function () {
         }
     };
 
-    self.copyEvents = (topLevelEl) => {
-        for (let sel in self.events) {
-            if (!self.events.hasOwnProperty(sel)) {
-                continue;
-            }
-
-            for (let evt in self.events[sel]) {
-                if (!self.events[sel].hasOwnProperty(evt)) {
-                    continue;
-                }
-
-                for (let i = 0; i < self.events[sel][evt].length; i++) {
-                    self.registerListener(
-                        topLevelEl,
-                        evt,
-                        sel,
-                        self.events[sel][evt][i],
-                    );
-                }
-            }
-        }
-    };
-
     /**
      * Resets all display types that are not the target display mode
      *
-     * @param {'fullScreen'|'theaterMode'|'miniPlayer'} displayTarget
+     * @param {'fullScreen'|'theaterMode'} displayTarget
      */
     self.resetDisplayMode = (displayTarget) => {
         if (self.fullscreenMode && displayTarget !== 'fullScreen') {
@@ -3898,10 +3630,6 @@ const fluidPlayerClass = function () {
 
         if (self.theatreMode && displayTarget !== 'theaterMode') {
             self.theatreToggle();
-        }
-
-        if (self.miniPlayerToggledOn && displayTarget !== 'miniPlayer') {
-            self.toggleMiniPlayer('off');
         }
     };
 
@@ -3977,24 +3705,8 @@ const fluidPlayerInterface = function (instance) {
         return instance.fullscreenToggle(state);
     };
 
-    this.toggleMiniPlayer = (state) => {
-        if (state === undefined) {
-            state = !instance.miniPlayerToggledOn;
-        }
-
-        return instance.toggleMiniPlayer(state ? 'on' : 'off', true);
-    };
-
     this.destroy = () => {
         return instance.destroy();
-    };
-
-    this.dashInstance = () => {
-        return !!instance.dashPlayer ? instance.dashPlayer : null;
-    };
-
-    this.hlsInstance = () => {
-        return !!instance.hlsPlayer ? instance.hlsPlayer : null;
     };
 
     this.on = (event, callback) => {

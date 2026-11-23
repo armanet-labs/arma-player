@@ -23,6 +23,9 @@ if (window) {
                 layoutControls: {
                     mute: true,
                     autoPlay: true,
+                    persistentSettings: {
+                        volume: false,
+                    },
                     controlBar: {
                         autoHideTimeout: 0.5,
                     },

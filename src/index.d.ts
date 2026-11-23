@@ -40,15 +40,6 @@ declare type OnTimeUpdate = (
     event: 'timeupdate',
     callback: (time: number, additionalInfo: AdditionalEventInfo) => void,
 ) => void;
-declare type OnMiniPlayerToggle = (
-    event: 'miniPlayerToggle',
-    callback: (
-        event: CustomEvent<{
-            isToggledOn: boolean;
-        }>,
-        additionalInfo: AdditionalEventInfo,
-    ) => void,
-) => void;
 
 declare interface FluidPlayerInstance {
     play: () => void;
@@ -58,15 +49,12 @@ declare interface FluidPlayerInstance {
     setVolume: (volume: number) => void;
     toggleControlBar: (shouldToggle: boolean) => void;
     toggleFullScreen: (shouldToggle: boolean) => void;
-    toggleMiniPlayer: (shouldToggle: boolean) => void;
     setHtmlOnPauseBlock: (pauseBlock: {
         html: string;
         width: number;
         height: number;
     }) => void;
     destroy: () => void;
-    dashInstance: () => any | null;
-    hlsInstance: () => any | null;
     on: OnPlay &
         OnPlaying &
         OnPause &
@@ -74,8 +62,7 @@ declare interface FluidPlayerInstance {
         OnSeeked &
         OnTheaterModeOn &
         OnTheaterModeOff &
-        OnTimeUpdate &
-        OnMiniPlayerToggle;
+        OnTimeUpdate;
 }
 
 declare interface LayoutControls {
@@ -89,7 +76,6 @@ declare interface LayoutControls {
     preload: 'none' | 'metadata' | 'auto' | string;
     mute: boolean;
     doubleclickFullscreen: boolean;
-    subtitlesEnabled: boolean;
     keyboardControl: boolean;
     title: string;
     loop: boolean;
@@ -108,7 +94,6 @@ declare interface LayoutControls {
         autoHideTimeout: number;
         animated: boolean;
     }>;
-    timelinePreview: VTTPreviewOptions | StaticPreviewOptions;
     htmlOnPauseBlock: Partial<{
         html: string | null;
         height: number | null;
@@ -145,37 +130,6 @@ declare interface LayoutControls {
             href: string;
             label: string;
         }>;
-    }>;
-    miniPlayer: Partial<{
-        enabled: boolean;
-        width: number;
-        height: number;
-        widthMobile: number;
-        placeholderText: string;
-        position: 'top right' | 'top left' | 'bottom right' | 'bottom left';
-        autoToggle: boolean;
-    }>;
-    showCardBoardView: boolean;
-    showCardBoardJoystick: boolean;
-}
-
-declare interface VTTPreviewOptions {
-    file: string;
-    type: 'VTT';
-    spriteRelativePath?: boolean;
-    sprite?: string;
-}
-
-declare interface StaticPreviewOptions {
-    type: 'static';
-    frames: Array<{
-        startTime: number;
-        endTime: number;
-        image: string;
-        x: number;
-        y: number;
-        w: number;
-        h: number;
     }>;
 }
 
@@ -240,19 +194,9 @@ declare interface OnPauseRollAdOptions extends AdOptions {
     roll: 'onPauseRoll';
 }
 
-declare interface ModulesOptions {
-    configureHls: (options: any) => any;
-    onBeforeInitHls: (hls: any) => void;
-    onAfterInitHls: (hls: any) => void;
-    configureDash: (options: any) => any;
-    onBeforeInitDash: (dash: any) => void;
-    onAfterInitDash: (dash: any) => void;
-}
-
 declare interface FluidPlayerOptions {
     layoutControls: Partial<LayoutControls>;
     vastOptions: Partial<VastOptions>;
-    modules: Partial<ModulesOptions>;
     onBeforeXMLHttpRequestOpen?: (request: XMLHttpRequest) => void;
     onBeforeXMLHttpRequest?: (request: XMLHttpRequest) => void;
     debug?: boolean;

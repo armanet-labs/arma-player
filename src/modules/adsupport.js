@@ -93,34 +93,23 @@ export default function (playerInstance, options) {
                             : playerInstance.domRef.player.duration;
                 }
 
+                let idAdClickable = [undefined, true].includes(
+                    playerInstance.displayOptions.vastOptions.adClickable,
+                );
+
                 if (
-                    playerInstance.displayOptions.layoutControls
-                        .showCardBoardView
+                    playerInstance.rollsById[ad.rollListId].adClickable !==
+                    undefined
                 ) {
-                    if (!ad.landingPage) {
-                        playerInstance.addCTAButton(ad.clickthroughUrl);
-                    } else {
-                        playerInstance.addCTAButton(ad.landingPage);
-                    }
-                } else {
-                    let idAdClickable = [undefined, true].includes(
-                        playerInstance.displayOptions.vastOptions.adClickable,
-                    );
-
-                    if (
-                        playerInstance.rollsById[ad.rollListId].adClickable !==
-                        undefined
-                    ) {
-                        idAdClickable =
-                            playerInstance.rollsById[ad.rollListId].adClickable;
-                    }
-
-                    if (idAdClickable) {
-                        playerInstance.addClickthroughLayer();
-                    }
-
-                    playerInstance.addCTAButton(ad.landingPage);
+                    idAdClickable =
+                        playerInstance.rollsById[ad.rollListId].adClickable;
                 }
+
+                if (idAdClickable) {
+                    playerInstance.addClickthroughLayer();
+                }
+
+                playerInstance.addCTAButton(ad.landingPage);
 
                 if (playerInstance.vastOptions.skipoffset !== false) {
                     playerInstance.addSkipButton();
@@ -174,48 +163,9 @@ export default function (playerInstance, options) {
                     'loadedmetadata',
                     playerInstance.switchPlayerToVastMode,
                 );
-
-                // if in vr mode then do not show
-                if (playerInstance.vrMode) {
-                    const adCountDownTimerText =
-                        playerInstance.domRef.wrapper.querySelector(
-                            '.ad_countdown',
-                        );
-                    const ctaButton =
-                        playerInstance.domRef.wrapper.querySelector(
-                            '.fluid_ad_cta',
-                        );
-                    const addAdPlayingTextOverlay =
-                        playerInstance.domRef.wrapper.querySelector(
-                            '.fluid_ad_playing',
-                        );
-                    const skipBtn =
-                        playerInstance.domRef.wrapper.querySelector(
-                            '.skip_button',
-                        );
-
-                    if (adCountDownTimerText) {
-                        adCountDownTimerText.style.display = 'none';
-                    }
-
-                    if (ctaButton) {
-                        ctaButton.style.display = 'none';
-                    }
-
-                    if (addAdPlayingTextOverlay) {
-                        addAdPlayingTextOverlay.style.display = 'none';
-                    }
-
-                    if (skipBtn) {
-                        skipBtn.style.display = 'none';
-                    }
-                }
             };
 
             playerInstance.domRef.player.pause();
-
-            // Remove the streaming objects to prevent errors on the VAST content
-            playerInstance.detachStreamers();
 
             // Try to load multiple
             const selectedMediaFile =
@@ -223,56 +173,9 @@ export default function (playerInstance, options) {
                     playerInstance.vastOptions.mediaFileList,
                 );
 
-            // if player in cardboard mode then, linear ads media type should be a '360' video
-            if (
-                playerInstance.displayOptions.layoutControls
-                    .showCardBoardView &&
-                ad.mediaType !== '360'
-            ) {
-                ad.error = true;
-                playerInstance.playMainVideoWhenVastFails(403);
-                return false;
-            }
-
             const isVpaid = playerInstance.vastOptions.vpaid;
 
-            if (!isVpaid && selectedMediaFile.isUnsuportedHls) {
-                import(/* webpackChunkName: "hlsjs" */ 'hls.js').then((it) => {
-                    window.Hls = it.default;
-                    const hls = new Hls({
-                        debug:
-                            typeof FP_DEBUG !== 'undefined' &&
-                            FP_DEBUG === true,
-                        p2pConfig: {
-                            logLevel: false,
-                        },
-                        enableWebVTT: false,
-                        enableCEA708Captions: false,
-                    });
-
-                    hls.attachMedia(playerInstance.domRef.player);
-                    hls.loadSource(selectedMediaFile.src);
-                    playerInstance.isCurrentlyPlayingAd = true;
-
-                    playerInstance.hlsPlayer = hls;
-
-                    playerInstance.domRef.player.addEventListener(
-                        'loadedmetadata',
-                        playerInstance.switchPlayerToVastMode,
-                    );
-                    playerInstance.domRef.player.addEventListener(
-                        'ended',
-                        () => {
-                            hls.detachMedia();
-                            hls.destroy();
-                            playerInstance.hlsPlayer = false;
-                            playerInstance.onVastAdEnded();
-                        },
-                    );
-
-                    playerInstance.domRef.player.play();
-                });
-            } else if (!isVpaid) {
+            if (!isVpaid) {
                 if (selectedMediaFile.src === false) {
                     // Couldn’t find MediaFile that is supported by this video player, based on the attributes of the MediaFile element.
                     ad.error = true;
@@ -426,18 +329,6 @@ export default function (playerInstance, options) {
                     //one of the best(s) option, no need to seek more
                     if (supportLevel === 'probably') {
                         break;
-                    }
-
-                    if (
-                        supportLevel === 'no' &&
-                        mediaFiles[i].delivery === 'streaming' &&
-                        (mediaFiles[i].type ===
-                            'application/vnd.apple.mpegurl' ||
-                            mediaFiles[i].type === 'application/x-mpegURL')
-                    ) {
-                        selectedMediaFile = mediaFiles[i];
-                        selectedMediaFile.isUnsuportedHls = true;
-                        adSupportedType = true;
                     }
                 } else {
                     selectedMediaFile = mediaFiles[i];
@@ -1426,12 +1317,7 @@ export default function (playerInstance, options) {
                 const rollListId = ad.rollListId;
                 const vastOptions = playerInstance.adPool[rollListId];
 
-                // we are not supporting nonLinear ads in cardBoard mode
-                if (
-                    ad.played === false &&
-                    !playerInstance.displayOptions.layoutControls
-                        .showCardBoardView
-                ) {
+                if (ad.played === false) {
                     playerInstance.createNonLinearStatic(ad);
                     if (
                         playerInstance.displayOptions.vastOptions
@@ -1631,8 +1517,6 @@ export default function (playerInstance, options) {
 
         playerInstance.domRef.player.src = playerInstance.originalSrc;
 
-        playerInstance.initialiseStreamers();
-
         const newCurrentTime =
             typeof playerInstance.domRef.player.mainVideoCurrentTime !==
             'undefined'
@@ -1761,10 +1645,7 @@ export default function (playerInstance, options) {
      * Ad Countdown
      */
     playerInstance.addAdCountdown = () => {
-        if (
-            (playerInstance.isCurrentlyPlayingAd && playerInstance.hlsPlayer) ||
-            playerInstance.currentVideoDuration === Infinity
-        ) {
+        if (playerInstance.currentVideoDuration === Infinity) {
             return; // Shouldn't show countdown if ad is a video live stream
         }
 

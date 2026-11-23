@@ -189,8 +189,19 @@ module.exports = (env, argv) => {
                     use: ['style-loader', 'css-loader'],
                 },
                 {
-                    test: /\.svg/,
-                    type: 'asset',
+                    test: /\.svg$/,
+                    type: 'asset/inline',
+                    generator: {
+                        dataUrl: (content) =>
+                            'data:image/svg+xml,' +
+                            encodeURIComponent(
+                                content
+                                    .toString()
+                                    .replace(/>\s+</g, '><')
+                                    .replace(/\s+/g, ' ')
+                                    .trim(),
+                            ),
+                    },
                 },
             ],
         },
